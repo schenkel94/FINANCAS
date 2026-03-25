@@ -9,8 +9,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 from dash import Dash, Input, Output, dcc, html
 
-ROOT = Path(__file__).resolve().parents[1]
-DATA_PATH = ROOT / "data" / "processed" / "dre_pdv_mensal_consolidado_com_acoes.csv"
+BASE_DIR = Path(__file__).resolve().parent 
+DATA_PATH = BASE_DIR / "data" / "processed" / "dre_pdv_mensal_consolidado_com_acoes.csv"
 
 if not DATA_PATH.exists():
     raise FileNotFoundError(f"Arquivo nao encontrado: {DATA_PATH}")
