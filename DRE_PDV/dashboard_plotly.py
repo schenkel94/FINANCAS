@@ -183,14 +183,27 @@ app.layout = html.Div(
             children=[
                 html.Div([
                     html.Label("Período"),
-                    dcc.DatePickerRange(
-                        id="filter-period",
-                        min_date_allowed=MESES[0],
-                        max_date_allowed=MESES[-1],
-                        start_date=MESES[0],
-                        end_date=MESES[-1],
-                        display_format="MM/YYYY",
-                        style={"width": "100%"},
+                    html.Div(
+                        className="date-range-wrapper",
+                        children=[
+                            dcc.Input(
+                                id="filter-start",
+                                type="month",
+                                value=MESES[0][:7],
+                                min=MESES[0][:7],
+                                max=MESES[-1][:7],
+                                className="dark-month-input",
+                            ),
+                            html.Span("→", className="date-arrow"),
+                            dcc.Input(
+                                id="filter-end",
+                                type="month",
+                                value=MESES[-1][:7],
+                                min=MESES[0][:7],
+                                max=MESES[-1][:7],
+                                className="dark-month-input",
+                            ),
+                        ],
                     ),
                 ], className="filter-item"),
                 html.Div([
@@ -201,6 +214,8 @@ app.layout = html.Div(
                         multi=True,
                         placeholder="Todas as regiões",
                         clearable=True,
+                        className="dark-dropdown",
+                        style={"background": "#131b2a"},
                     ),
                 ], className="filter-item"),
                 html.Div([
@@ -211,6 +226,8 @@ app.layout = html.Div(
                         multi=True,
                         placeholder="Todos os canais",
                         clearable=True,
+                        className="dark-dropdown",
+                        style={"background": "#131b2a"},
                     ),
                 ], className="filter-item"),
                 html.Div([
@@ -221,6 +238,8 @@ app.layout = html.Div(
                         multi=True,
                         placeholder="Todos os PDVs",
                         clearable=True,
+                        className="dark-dropdown",
+                        style={"background": "#131b2a"},
                     ),
                 ], className="filter-item"),
             ],
@@ -369,14 +388,17 @@ app.layout = html.Div(
     Output("chart-bar-regiao",   "figure"),
     Output("insights-table",     "children"),
     Output("badge-criticos",     "children"),
-    Input("filter-period",  "start_date"),
-    Input("filter-period",  "end_date"),
-    Input("filter-regiao",  "value"),
-    Input("filter-canal",   "value"),
-    Input("filter-pdv",     "value"),
+    Input("filter-start",  "value"),
+    Input("filter-end",    "value"),
+    Input("filter-regiao", "value"),
+    Input("filter-canal",  "value"),
+    Input("filter-pdv",    "value"),
 )
 def update_all(start, end, regioes, canais, pdvs):
-    dff = apply_filters(DF, regioes, canais, start, end, pdvs)
+    # Convert YYYY-MM to full date string for filter
+    start_dt = f"{start}-01" if start else None
+    end_dt   = f"{end}-01"   if end   else None
+    dff = apply_filters(DF, regioes, canais, start_dt, end_dt, pdvs)
 
     # ── KPIs ------------------------------------------------------------------
     rl_curr  = dff["receita_liquida"].sum()

@@ -159,111 +159,133 @@ html, body {
   margin-bottom: 6px;
 }
 
-/* ── Dropdown dark styled ──────────────────── */
-.filter-item .Select-control,
-.filter-item .Select--multi .Select-control {
+/* ── Native month inputs ───────────────────── */
+.date-range-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--bg-elevated);
+  border: 1.5px solid rgba(0,212,255,0.2);
+  border-radius: 10px;
+  padding: 0 10px;
+  height: 38px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.date-range-wrapper:focus-within {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.10);
+}
+.dark-month-input {
+  flex: 1;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  color: var(--text) !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 13px !important;
+  min-width: 0;
+  color-scheme: dark;
+}
+.dark-month-input::-webkit-calendar-picker-indicator {
+  filter: invert(0.6) sepia(1) saturate(2) hue-rotate(170deg);
+  opacity: 0.6;
+  cursor: pointer;
+}
+.dark-month-input::-webkit-calendar-picker-indicator:hover { opacity: 1; }
+.date-arrow {
+  color: var(--text-dim);
+  font-size: 13px;
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* ── dcc.Dropdown dark override ────────────── */
+.dark-dropdown .Select-control {
   background: var(--bg-elevated) !important;
-  border: 1.5px solid rgba(0,212,255,0.18) !important;
+  border: 1.5px solid rgba(0,212,255,0.2) !important;
   border-radius: 10px !important;
   color: var(--text) !important;
   font-family: 'DM Sans', sans-serif !important;
   font-size: 13px !important;
   min-height: 38px !important;
+  box-shadow: none !important;
   transition: border-color 0.2s, box-shadow 0.2s !important;
 }
-.filter-item .Select-control:hover,
-.filter-item .is-focused .Select-control {
+.dark-dropdown .Select-control:hover { border-color: var(--accent-cyan) !important; }
+.dark-dropdown.is-focused .Select-control,
+.dark-dropdown.is-open .Select-control {
   border-color: var(--accent-cyan) !important;
   box-shadow: 0 0 0 3px rgba(0,212,255,0.10) !important;
+}
+.dark-dropdown .Select-value-label { color: var(--text) !important; }
+.dark-dropdown .Select-placeholder { color: var(--text-dim) !important; }
+.dark-dropdown .Select-input input { color: var(--text) !important; background: transparent !important; }
+.dark-dropdown .Select-arrow-zone .Select-arrow {
+  border-color: var(--text-muted) transparent transparent !important;
+}
+.dark-dropdown.is-open .Select-arrow-zone .Select-arrow {
+  border-color: transparent transparent var(--accent-cyan) !important;
+}
+.dark-dropdown .Select-clear-zone { color: var(--text-dim) !important; }
+.dark-dropdown .Select-clear-zone:hover { color: var(--accent-red) !important; }
+
+/* Multi-value tags */
+.dark-dropdown .Select-multi-value-wrapper .Select-value {
+  background: rgba(0,212,255,0.10) !important;
+  border: 1px solid rgba(0,212,255,0.25) !important;
+  border-radius: 6px !important;
+  color: var(--accent-cyan) !important;
+  margin: 2px 2px !important;
+}
+.dark-dropdown .Select-value-icon {
+  color: rgba(0,212,255,0.6) !important;
+  border-right: 1px solid rgba(0,212,255,0.2) !important;
+  padding: 2px 5px !important;
+}
+.dark-dropdown .Select-value-icon:hover {
+  background: rgba(255,77,109,0.15) !important;
+  color: var(--accent-red) !important;
 }
 
-/* ── DatePickerRange dark ──────────────────── */
-.filter-item .DateRangePickerInput {
+/* Dropdown popup menu */
+.dark-dropdown .Select-menu-outer {
   background: var(--bg-elevated) !important;
-  border: 1.5px solid rgba(0,212,255,0.18) !important;
+  border: 1px solid rgba(0,212,255,0.2) !important;
   border-radius: 10px !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.75) !important;
+  z-index: 9999 !important;
+  margin-top: 4px !important;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  transition: border-color 0.2s, box-shadow 0.2s !important;
-  width: 100%;
 }
-.filter-item .DateRangePickerInput:hover,
-.filter-item .DateRangePickerInput:focus-within {
-  border-color: var(--accent-cyan) !important;
-  box-shadow: 0 0 0 3px rgba(0,212,255,0.10) !important;
-}
-.filter-item .DateInput {
-  background: transparent !important;
-  flex: 1;
-}
-.filter-item .DateInput_input {
-  background: transparent !important;
-  color: var(--text) !important;
-  border: 0 !important;
-  font-family: 'DM Sans', sans-serif !important;
-  font-size: 13px !important;
-  padding: 6px 10px !important;
-  text-align: center;
-}
-.filter-item .DateInput_input::placeholder { color: var(--text-dim) !important; }
-.filter-item .DateRangePickerInput_arrow { color: var(--text-dim) !important; font-size: 13px !important; }
-.filter-item .DateRangePickerInput_clearDates {
+.dark-dropdown .Select-menu { background: transparent !important; }
+.dark-dropdown .Select-option {
   background: transparent !important;
   color: var(--text-muted) !important;
-  padding: 0 8px !important;
+  font-size: 13px !important;
+  font-family: 'DM Sans', sans-serif !important;
+  padding: 9px 12px !important;
+  transition: background 0.12s, color 0.12s;
 }
-.filter-item .DateRangePickerInput_clearDates:hover { color: var(--accent-red) !important; }
-
-/* Calendar popup dark */
-.DayPicker,
-.DayPicker_weekHeader,
-.CalendarMonth,
-.CalendarMonthGrid {
-  background: var(--bg-elevated) !important;
-  color: var(--text) !important;
-}
-.CalendarMonth_caption { color: var(--text) !important; }
-.DayPicker_weekHeader_li { color: var(--text-muted) !important; }
-.CalendarDay__default {
-  background: var(--bg-elevated) !important;
-  color: var(--text) !important;
-  border-color: rgba(255,255,255,0.04) !important;
-}
-.CalendarDay__default:hover {
-  background: var(--bg-hover) !important;
+.dark-dropdown .Select-option:hover,
+.dark-dropdown .Select-option.is-focused {
+  background: rgba(0,212,255,0.08) !important;
   color: var(--accent-cyan) !important;
 }
-.CalendarDay__selected,
-.CalendarDay__selected:hover {
-  background: var(--accent-cyan) !important;
-  border-color: var(--accent-cyan) !important;
-  color: var(--bg-base) !important;
-  font-weight: 700;
+.dark-dropdown .Select-option.is-selected {
+  background: rgba(0,212,255,0.14) !important;
+  color: var(--accent-cyan) !important;
+  font-weight: 600 !important;
 }
-.CalendarDay__selected_span {
-  background: rgba(0,212,255,0.15) !important;
-  border-color: rgba(0,212,255,0.1) !important;
-  color: var(--text) !important;
+.dark-dropdown .VirtualizedSelectFocusedOption {
+  background: rgba(0,212,255,0.08) !important;
 }
-.CalendarDay__hovered_span {
-  background: rgba(0,212,255,0.1) !important;
-  color: var(--text) !important;
-}
-.DayPickerNavigation_button {
-  background: var(--bg-hover) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 6px !important;
-}
-.DayPickerNavigation_button:hover { border-color: var(--accent-cyan) !important; }
-.DayPickerNavigation_svg__horizontal { fill: var(--text-muted) !important; }
 
 /* ── Global Dropdown Menu (popup) ──────────── */
 .Select-menu-outer {
   background: var(--bg-elevated) !important;
-  border: 1px solid var(--border-glow) !important;
+  border: 1px solid rgba(0,212,255,0.2) !important;
   border-radius: 10px !important;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.7) !important;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.75) !important;
   z-index: 9999 !important;
 }
 .Select-option { background: var(--bg-elevated) !important; color: var(--text) !important; font-size: 13px !important; }
@@ -271,11 +293,12 @@ html, body {
 .Select-option.is-selected { background: rgba(0,212,255,0.12) !important; color: var(--accent-cyan) !important; }
 .Select-placeholder { color: var(--text-dim) !important; }
 .Select-value-label { color: var(--text-muted) !important; }
-.Select-multi-value-wrapper .Select-value { background: rgba(0,212,255,0.12) !important; border: 1px solid var(--border-glow) !important; border-radius: 6px !important; color: var(--accent-cyan) !important; }
-.Select-value-icon { color: var(--accent-cyan) !important; border-right: 1px solid var(--border-glow) !important; }
+.Select-multi-value-wrapper .Select-value { background: rgba(0,212,255,0.12) !important; border: 1px solid rgba(0,212,255,0.25) !important; border-radius: 6px !important; color: var(--accent-cyan) !important; }
+.Select-value-icon { color: var(--accent-cyan) !important; border-right: 1px solid rgba(0,212,255,0.2) !important; }
 .Select-arrow { border-color: var(--text-muted) transparent transparent !important; }
 .is-open .Select-arrow { border-color: transparent transparent var(--text-muted) !important; }
 .VirtualizedSelectFocusedOption { background: var(--bg-hover) !important; }
+
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
