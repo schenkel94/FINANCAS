@@ -11,7 +11,7 @@ import plotly.express as px
 # LOAD DATA
 # =========================
 BASE_DIR = Path(__file__).resolve().parent
-DATA_PATH = BASE_DIR / "dre_pdv_mensal_consolidado_com_acoes.csv"
+DATA_PATH = BASE_DIR / "data" / "processed" / "dre_pdv_mensal_consolidado_com_acoes.csv"
 
 df = pd.read_csv(DATA_PATH)
 df["mes"] = pd.to_datetime(df["mes"])
