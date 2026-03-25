@@ -1,59 +1,45 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Space+Grotesk:wght@500;700&display=swap');
-
-:root {
-  --bg-color: #0b0e14;
-  --card-bg: #161b22;
-  --accent: #58a6ff;
-  --success: #3fb950;
-  --danger: #f85149;
-  --text-main: #c9d1d9;
-  --text-muted: #8b949e;
-  --border: rgba(48, 54, 61, 0.8);
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Space+Grotesk:wght@500;700&display=swap');
 
 body {
-  background-color: var(--bg-color);
-  color: var(--text-main);
-  font-family: 'Inter', sans-serif;
-  margin: 0;
+    background-color: #0b0e14;
+    color: #e6edf3;
+    font-family: 'Inter', sans-serif;
 }
 
-/* Efeito de Card SaaS */
-.saas-card {
-  background-color: var(--card-bg) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 12px !important;
-  transition: transform 0.2s ease;
+.app-bg {
+    padding: 20px;
 }
 
-.saas-card:hover {
-  border-color: var(--accent) !important;
+.title {
+    font-family: 'Space Grotesk';
+    font-size: 28px;
 }
 
-/* DRE Lateral Estilizado */
-.dre-container {
-  border-left: 2px solid var(--accent);
-  padding-left: 15px;
+.subtitle {
+    color: #8b949e;
 }
 
-.dre-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px 0;
-  border-bottom: 1px solid var(--border);
-  font-size: 0.9rem;
+.filters {
+    margin-bottom: 20px;
 }
 
-.dre-total {
-  font-weight: 800;
-  color: var(--accent);
-  font-size: 1rem;
-  border-bottom: 2px solid var(--accent) !important;
+.kpi-card {
+    background: #161b22;
+    border-radius: 12px;
+    padding: 16px;
+    margin: 5px;
+    box-shadow: inset 0 0 10px rgba(88,166,255,0.1);
+    border: 1px solid #30363d;
+    font-size: 18px;
 }
 
-/* Customização dos filtros Dash */
-.dash-dropdown .Select-control {
-  background-color: var(--card-bg) !important;
-  border: 1px solid var(--border) !important;
-  color: white !important;
+.dre-card {
+    background: #161b22;
+    padding: 16px;
+    border-radius: 12px;
+    border: 1px solid #30363d;
+}
+
+h5 {
+    margin-top: 20px;
 }
