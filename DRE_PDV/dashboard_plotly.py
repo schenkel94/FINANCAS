@@ -13,7 +13,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import dash_bootstrap_components as dbc
-from dash import Dash, Input, Output, State, dash_table, dcc, html, callback_context
+from dash import Dash, Input, Output, dash_table, dcc, html
 
 # ─── Paths ────────────────────────────────────────────────────────────────────
 BASE_DIR = Path(__file__).resolve().parent
@@ -93,12 +93,6 @@ def delta_class(v: float) -> str:
     return "delta-flat"
 
 
-def delta_icon(v: float) -> str:
-    if v > 0.005:  return "▲"
-    if v < -0.005: return "▼"
-    return "●"
-
-
 def apply_filters(df: pd.DataFrame, regioes, canais, start, end, pdvs=None) -> pd.DataFrame:
     out = df.copy()
     if regioes:  out = out[out["regiao"].isin(regioes)]
@@ -117,7 +111,6 @@ def kpi_card(card_id: str, icon: str, label: str, dot_color: str = "cyan") -> ht
             html.Div(icon, className="kpi-icon"),
             html.Div(label, className="kpi-label"),
             html.Div(id=f"kpi-{card_id}", className="kpi-value", children="—"),
-            html.Div(id=f"kpi-{card_id}-delta", className="kpi-delta delta-flat", children="—"),
         ],
     )
 
@@ -163,10 +156,22 @@ app.layout = html.Div(
                     ],
                 ),
                 html.Div(
-                    className="hero-badge",
+                    className="hero-right",
                     children=[
-                        html.Div(className="live-dot"),
-                        html.Span("LIVE DATA", className="live-label"),
+                        html.Div(
+                            className="hero-live",
+                            children=[
+                                html.Div(className="live-dot"),
+                                html.Span("LIVE DATA", className="live-label"),
+                            ],
+                        ),
+                        html.Div(
+                            className="hero-signature",
+                            children=[
+                                html.Span("Mário Schenkel", className="sig-name"),
+                                html.Span("Business Data Analyst", className="sig-role"),
+                            ],
+                        ),
                     ],
                 ),
             ],
@@ -332,8 +337,17 @@ app.layout = html.Div(
 
         # Footer
         html.Div(
-            "DRE PDV Analytics · Powered by Dash & Plotly · Dados atualizados automaticamente",
             className="footer",
+            children=[
+                "DRE PDV Analytics · Powered by ",
+                html.A(
+                    "Mário Schenkel",
+                    href="https://schenkel94.github.io/portfolio/",
+                    target="_blank",
+                    className="footer-link",
+                ),
+                " · Dados atualizados automaticamente",
+            ],
         ),
     ],
 )
@@ -342,20 +356,10 @@ app.layout = html.Div(
 # ─── Master Callback ──────────────────────────────────────────────────────────
 @app.callback(
     Output("kpi-receita",        "children"),
-    Output("kpi-receita-delta",  "children"),
-    Output("kpi-receita-delta",  "className"),
     Output("kpi-margem",         "children"),
-    Output("kpi-margem-delta",   "children"),
-    Output("kpi-margem-delta",   "className"),
     Output("kpi-ebitda",         "children"),
-    Output("kpi-ebitda-delta",   "children"),
-    Output("kpi-ebitda-delta",   "className"),
     Output("kpi-lucro",          "children"),
-    Output("kpi-lucro-delta",    "children"),
-    Output("kpi-lucro-delta",    "className"),
     Output("kpi-criticos",       "children"),
-    Output("kpi-criticos-delta", "children"),
-    Output("kpi-criticos-delta", "className"),
     Output("dre-content",        "children"),
     Output("chart-donut",        "figure"),
     Output("chart-scatter",      "figure"),
@@ -374,48 +378,19 @@ app.layout = html.Div(
 def update_all(start, end, regioes, canais, pdvs):
     dff = apply_filters(DF, regioes, canais, start, end, pdvs)
 
-    # ── Helpers ---------------------------------------------------------------
-    def safe_pct_delta(curr, prev):
-        if prev and prev != 0:
-            return (curr - prev) / abs(prev)
-        return 0.0
-
-    # ── Period split for delta (compare last month vs prev month in selection) -
-    meses_sorted = sorted(dff["mes"].unique())
-    if len(meses_sorted) >= 2:
-        last_mes  = dff[dff["mes"] == meses_sorted[-1]]
-        prev_mes  = dff[dff["mes"] == meses_sorted[-2]]
-    else:
-        last_mes  = dff
-        prev_mes  = pd.DataFrame(columns=dff.columns)
-
-    def kpi_delta_vals(col, is_pct=False):
-        curr = last_mes[col].sum() if not is_pct else last_mes[col].mean()
-        prev = prev_mes[col].sum() if not prev_mes.empty and not is_pct else (prev_mes[col].mean() if not prev_mes.empty else 0)
-        delta = safe_pct_delta(curr, prev)
-        return curr, delta
-
     # ── KPIs ------------------------------------------------------------------
-    rl_curr,  rl_d  = kpi_delta_vals("receita_liquida")
-    mo_curr,  mo_d  = kpi_delta_vals("margem_operacional", is_pct=True)
-    eb_curr,  eb_d  = kpi_delta_vals("ebitda")
-    ll_curr,  ll_d  = kpi_delta_vals("lucro_liquido")
-
+    rl_curr  = dff["receita_liquida"].sum()
+    mo_curr  = dff["margem_operacional"].mean()
+    eb_curr  = dff["ebitda"].sum()
+    ll_curr  = dff["lucro_liquido"].sum()
     criticos_n = dff[dff["prioridade_risco"] == "alta"]["id_pdv"].nunique()
-    criticos_prev = (prev_mes[prev_mes["prioridade_risco"] == "alta"]["id_pdv"].nunique()
-                     if not prev_mes.empty else 0)
-    crit_d = safe_pct_delta(criticos_n, criticos_prev)
-
-    def fmt_delta(d):
-        sign = "+" if d > 0 else ""
-        return f"{delta_icon(d)} {sign}{d*100:.1f}%"
 
     kpi_results = [
-        brl(rl_curr),  fmt_delta(rl_d),  f"kpi-delta {delta_class(rl_d)}",
-        pct(mo_curr),  fmt_delta(mo_d),  f"kpi-delta {delta_class(mo_d)}",
-        brl(eb_curr),  fmt_delta(eb_d),  f"kpi-delta {delta_class(eb_d)}",
-        brl(ll_curr),  fmt_delta(ll_d),  f"kpi-delta {delta_class(ll_d)}",
-        str(criticos_n), fmt_delta(crit_d), f"kpi-delta {delta_class(-crit_d)}",  # less is good
+        brl(rl_curr),
+        pct(mo_curr),
+        brl(eb_curr),
+        brl(ll_curr),
+        str(criticos_n),
     ]
 
     # ── DRE ------------------------------------------------------------------
@@ -645,17 +620,15 @@ def update_all(start, end, regioes, canais, pdvs):
         textfont=dict(size=10, color="#e8edf5"),
         customdata=reg_agg[[
             "receita_liquida", "margem_op", "ebitda",
-            "lucro_liquido", "n_pdv", "n_criticos", "regiao"
+            "lucro_liquido", "regiao"
         ]],
         hovertemplate=(
-            "<b>%{customdata[6]}</b><br>"
+            "<b>%{customdata[4]}</b><br>"
             "━━━━━━━━━━━━━━━━━━━━<br>"
             "💰 Receita Líquida: <b>R$ %{customdata[0]:,.0f}</b><br>"
             "📊 Margem Op.: <b>%{customdata[1]:.1%}</b><br>"
             "⚡ EBITDA: <b>R$ %{customdata[2]:,.0f}</b><br>"
-            "🏆 Lucro Líq.: <b>R$ %{customdata[3]:,.0f}</b><br>"
-            "🏪 PDVs: <b>%{customdata[4]}</b><br>"
-            "🚨 Críticos: <b>%{customdata[5]}</b>"
+            "🏆 Lucro Líq.: <b>R$ %{customdata[3]:,.0f}</b>"
             "<extra></extra>"
         ),
         name="",
@@ -673,14 +646,15 @@ def update_all(start, end, regioes, canais, pdvs):
             countrycolor="rgba(255,255,255,0.08)",
             showframe=False,
             bgcolor="rgba(0,0,0,0)",
-            center=dict(lat=-15, lon=-52),
-            projection_scale=2.5,
+            center=dict(lat=-14, lon=-53),
+            projection_scale=1.8,
             lataxis_range=[-35, 6],
             lonaxis_range=[-75, -32],
             showsubunits=True,
             subunitcolor="rgba(255,255,255,0.05)",
         ),
         showlegend=False,
+        uirevision="brazil-fixed",
     )
 
     # ── Stacked bar – Composição por Região -----------------------------------

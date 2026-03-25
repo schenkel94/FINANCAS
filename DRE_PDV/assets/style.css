@@ -90,9 +90,39 @@ html, body {
   margin-top: 4px;
   font-weight: 400;
 }
-.hero-badge {
+.hero-right {
   position: relative; z-index: 1;
-  display: flex; align-items: center; gap: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+}
+.hero-live {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.hero-signature {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+.sig-name {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.3px;
+  line-height: 1.1;
+}
+.sig-role {
+  font-size: 11px;
+  color: var(--accent-cyan);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  opacity: 0.85;
 }
 .live-dot {
   width: 8px; height: 8px;
@@ -129,58 +159,123 @@ html, body {
   margin-bottom: 6px;
 }
 
-/* Dash Dropdown Dark Override */
-.Select-control {
+/* ── Dropdown dark styled ──────────────────── */
+.filter-item .Select-control,
+.filter-item .Select--multi .Select-control {
   background: var(--bg-elevated) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 8px !important;
+  border: 1.5px solid rgba(0,212,255,0.18) !important;
+  border-radius: 10px !important;
   color: var(--text) !important;
   font-family: 'DM Sans', sans-serif !important;
   font-size: 13px !important;
-  min-height: 36px !important;
+  min-height: 38px !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
 }
-.Select-control:hover { border-color: var(--border-glow) !important; }
+.filter-item .Select-control:hover,
+.filter-item .is-focused .Select-control {
+  border-color: var(--accent-cyan) !important;
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.10) !important;
+}
+
+/* ── DatePickerRange dark ──────────────────── */
+.filter-item .DateRangePickerInput {
+  background: var(--bg-elevated) !important;
+  border: 1.5px solid rgba(0,212,255,0.18) !important;
+  border-radius: 10px !important;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
+  width: 100%;
+}
+.filter-item .DateRangePickerInput:hover,
+.filter-item .DateRangePickerInput:focus-within {
+  border-color: var(--accent-cyan) !important;
+  box-shadow: 0 0 0 3px rgba(0,212,255,0.10) !important;
+}
+.filter-item .DateInput {
+  background: transparent !important;
+  flex: 1;
+}
+.filter-item .DateInput_input {
+  background: transparent !important;
+  color: var(--text) !important;
+  border: 0 !important;
+  font-family: 'DM Sans', sans-serif !important;
+  font-size: 13px !important;
+  padding: 6px 10px !important;
+  text-align: center;
+}
+.filter-item .DateInput_input::placeholder { color: var(--text-dim) !important; }
+.filter-item .DateRangePickerInput_arrow { color: var(--text-dim) !important; font-size: 13px !important; }
+.filter-item .DateRangePickerInput_clearDates {
+  background: transparent !important;
+  color: var(--text-muted) !important;
+  padding: 0 8px !important;
+}
+.filter-item .DateRangePickerInput_clearDates:hover { color: var(--accent-red) !important; }
+
+/* Calendar popup dark */
+.DayPicker,
+.DayPicker_weekHeader,
+.CalendarMonth,
+.CalendarMonthGrid {
+  background: var(--bg-elevated) !important;
+  color: var(--text) !important;
+}
+.CalendarMonth_caption { color: var(--text) !important; }
+.DayPicker_weekHeader_li { color: var(--text-muted) !important; }
+.CalendarDay__default {
+  background: var(--bg-elevated) !important;
+  color: var(--text) !important;
+  border-color: rgba(255,255,255,0.04) !important;
+}
+.CalendarDay__default:hover {
+  background: var(--bg-hover) !important;
+  color: var(--accent-cyan) !important;
+}
+.CalendarDay__selected,
+.CalendarDay__selected:hover {
+  background: var(--accent-cyan) !important;
+  border-color: var(--accent-cyan) !important;
+  color: var(--bg-base) !important;
+  font-weight: 700;
+}
+.CalendarDay__selected_span {
+  background: rgba(0,212,255,0.15) !important;
+  border-color: rgba(0,212,255,0.1) !important;
+  color: var(--text) !important;
+}
+.CalendarDay__hovered_span {
+  background: rgba(0,212,255,0.1) !important;
+  color: var(--text) !important;
+}
+.DayPickerNavigation_button {
+  background: var(--bg-hover) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 6px !important;
+}
+.DayPickerNavigation_button:hover { border-color: var(--accent-cyan) !important; }
+.DayPickerNavigation_svg__horizontal { fill: var(--text-muted) !important; }
+
+/* ── Global Dropdown Menu (popup) ──────────── */
 .Select-menu-outer {
   background: var(--bg-elevated) !important;
   border: 1px solid var(--border-glow) !important;
-  border-radius: 8px !important;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.7) !important;
   z-index: 9999 !important;
 }
 .Select-option { background: var(--bg-elevated) !important; color: var(--text) !important; font-size: 13px !important; }
 .Select-option:hover, .Select-option.is-focused { background: var(--bg-hover) !important; color: var(--accent-cyan) !important; }
 .Select-option.is-selected { background: rgba(0,212,255,0.12) !important; color: var(--accent-cyan) !important; }
-.Select-placeholder, .Select-value-label { color: var(--text-muted) !important; }
+.Select-placeholder { color: var(--text-dim) !important; }
+.Select-value-label { color: var(--text-muted) !important; }
 .Select-multi-value-wrapper .Select-value { background: rgba(0,212,255,0.12) !important; border: 1px solid var(--border-glow) !important; border-radius: 6px !important; color: var(--accent-cyan) !important; }
 .Select-value-icon { color: var(--accent-cyan) !important; border-right: 1px solid var(--border-glow) !important; }
 .Select-arrow { border-color: var(--text-muted) transparent transparent !important; }
 .is-open .Select-arrow { border-color: transparent transparent var(--text-muted) !important; }
 .VirtualizedSelectFocusedOption { background: var(--bg-hover) !important; }
-
-/* Date Picker dark */
-.DateInput_input {
-  background: var(--bg-elevated) !important;
-  color: var(--text) !important;
-  border: 0 !important;
-  font-family: 'DM Sans', sans-serif !important;
-  font-size: 13px !important;
-}
-.DateRangePickerInput {
-  background: var(--bg-elevated) !important;
-  border: 1px solid var(--border) !important;
-  border-radius: 8px !important;
-}
-.DateRangePickerInput:hover { border-color: var(--border-glow) !important; }
-.DateRangePickerInput__withBorder { border-radius: 8px !important; }
-.DateInput { background: transparent !important; }
-.CalendarDay__selected, .CalendarDay__selected:hover {
-  background: var(--accent-cyan) !important;
-  border-color: var(--accent-cyan) !important;
-  color: var(--bg-base) !important;
-}
-.DayPicker, .DayPickerNavigation_button { background: var(--bg-elevated) !important; color: var(--text) !important; }
-
-/* ── KPI Grid ──────────────────────────────── */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -423,6 +518,13 @@ html, body {
   border-top: 1px solid var(--border);
   margin-top: 8px;
 }
+.footer-link {
+  color: var(--accent-cyan);
+  text-decoration: none;
+  font-weight: 600;
+  transition: opacity 0.15s;
+}
+.footer-link:hover { opacity: 0.75; text-decoration: underline; }
 
 /* ── Responsive ────────────────────────────── */
 @media (max-width: 1200px) {
