@@ -2,5 +2,6 @@ pandas
 numpy
 plotly
 dash
+dash-bootstrap-components
 gunicorn
 pathlib
