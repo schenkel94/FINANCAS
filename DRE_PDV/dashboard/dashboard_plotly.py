@@ -315,6 +315,7 @@ max_date = df_base["mes"].max().date()
 
 app = Dash(__name__)
 app.title = "DRE por PDV - Dashboard Plotly"
+server = app.server
 
 app.layout = html.Div(
     [
