@@ -1,174 +1,170 @@
-from pathlib import Path
+# =============================
+# BOARDROOM-LEVEL CHURN DASHBOARD
+# =============================
+
+import os
 import pandas as pd
-import numpy as np
-
-from dash import Dash, dcc, html, Input, Output
-import dash_bootstrap_components as dbc
-import plotly.graph_objects as go
 import plotly.express as px
+import plotly.graph_objects as go
+from dash import Dash, dcc, html, Input, Output
 
-# =========================
+# =============================
+# THEME
+# =============================
+BACKGROUND = "#0D1117"
+CARD = "#161B22"
+TEXT = "#E6EDF3"
+ACCENT = "#58A6FF"
+SUCCESS = "#2EA043"
+WARNING = "#D29922"
+DANGER = "#F85149"
+
+PRIMARY_PAIN_LABEL = "Principal Dor do Cliente"
+
+# =============================
 # LOAD DATA
-# =========================
-BASE_DIR = Path(__file__).resolve().parent
-DATA_PATH = BASE_DIR / "data" / "processed" / "dre_pdv_mensal_consolidado_com_acoes.csv"
+# =============================
 
-df = pd.read_csv(DATA_PATH)
-df["mes"] = pd.to_datetime(df["mes"])
+def load_data():
+    silver = pd.read_csv("churn_silver_2025.csv")
+    gold = pd.read_csv("churn_gold_2025.csv")
 
-# =========================
-# APP
-# =========================
-app = Dash(__name__, external_stylesheets=[dbc.themes.DARKLY])
-server = app.server
+    df = silver.merge(gold, on="id_cliente")
 
-# =========================
-# HELPERS
-# =========================
-def brl(v):
-    return f"R$ {v:,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    df["probabilidade_churn"] = df["probabilidade_churn"].astype(float)
+    df["valor_mensalidade"] = df["valor_mensalidade"].astype(float)
+    df["score_sentimento_voc"] = df["score_sentimento_voc"].astype(float)
 
-def pct(v):
-    return f"{v*100:.1f}%".replace(".", ",")
+    return df
 
-# =========================
-# LAYOUT
-# =========================
-app.layout = dbc.Container(fluid=True, className="app-bg", children=[
+# =============================
+# KPI / DRE
+# =============================
 
-    # HEADER
-    dbc.Row([
-        dbc.Col(html.Div([
-            html.H2("Financial Analytics SaaS", className="title"),
-            html.P("DRE Inteligente por PDV", className="subtitle")
-        ]))
-    ]),
+def format_currency(v):
+    return f"R$ {v:,.0f}".replace(",", ".")
 
-    # FILTERS
-    dbc.Row([
-        dbc.Col(dcc.Dropdown(
-            options=[{"label": r, "value": r} for r in df["regiao"].unique()],
-            multi=True,
-            value=df["regiao"].unique(),
-            id="regiao"
-        ), md=3),
 
-        dbc.Col(dcc.Dropdown(
-            options=[{"label": c, "value": c} for c in df["canal"].unique()],
-            multi=True,
-            value=df["canal"].unique(),
-            id="canal"
-        ), md=3),
-    ], className="filters"),
+def build_dre(df):
+    receita = df["valor_mensalidade"].sum()
+    risco = (df["valor_mensalidade"] * df["probabilidade_churn"]).sum()
+    liquido = receita - risco
 
-    # MAIN GRID
-    dbc.Row([
-
-        # =========================
-        # LEFT (9 cols)
-        # =========================
-        dbc.Col([
-
-            # KPIs
-            dbc.Row([
-                dbc.Col(html.Div(id="kpi-receita", className="kpi-card"), md=3),
-                dbc.Col(html.Div(id="kpi-ebitda", className="kpi-card"), md=3),
-                dbc.Col(html.Div(id="kpi-margem", className="kpi-card"), md=3),
-                dbc.Col(html.Div(id="kpi-devol", className="kpi-card"), md=3),
-            ]),
-
-            # GRAPHS
-            dbc.Row([
-                dbc.Col(dcc.Graph(id="area-receita"), md=6),
-                dbc.Col(dcc.Graph(id="donut-ebitda"), md=6),
-            ])
-
-        ], md=9),
-
-        # =========================
-        # RIGHT SIDEBAR (3 cols)
-        # =========================
-        dbc.Col([
-
-            html.Div(id="dre", className="dre-card"),
-
-            html.H5("PDVs Críticos"),
-            html.Div(id="insights")
-
-        ], md=3)
-
+    return html.Div(className="kpi-row", children=[
+        kpi("Receita Total", format_currency(receita)),
+        kpi("Receita em Risco", format_currency(risco), DANGER),
+        kpi("Receita Líquida", format_currency(liquido), SUCCESS),
     ])
 
+
+def kpi(title, value, color=ACCENT):
+    return html.Div(style={
+        "background": CARD,
+        "padding": "20px",
+        "borderRadius": "16px"
+    }, children=[
+        html.Div(title, style={"color": "gray"}),
+        html.H2(value, style={"color": color})
+    ])
+
+# =============================
+# GRAPHS
+# =============================
+
+def revenue_vs_risk(df):
+    g = df.groupby(PRIMARY_PAIN_LABEL).agg({
+        "valor_mensalidade": "sum",
+        "probabilidade_churn": "mean"
+    }).reset_index()
+
+    fig = go.Figure()
+
+    fig.add_bar(x=g[PRIMARY_PAIN_LABEL], y=g["valor_mensalidade"], name="Receita")
+    fig.add_scatter(x=g[PRIMARY_PAIN_LABEL], y=g["probabilidade_churn"], yaxis="y2", name="Risco")
+
+    fig.update_layout(
+        paper_bgcolor=CARD,
+        plot_bgcolor=CARD,
+        font=dict(color=TEXT),
+        yaxis2=dict(overlaying="y", side="right", tickformat=".0%")
+    )
+
+    return fig
+
+
+def churn_donut(df):
+    c = df["previsao_final"].value_counts()
+
+    return go.Figure(data=[go.Pie(
+        labels=["OK", "Churn"],
+        values=[c.get(0,0), c.get(1,0)],
+        hole=0.6
+    )])
+
+
+def pareto(df):
+    df = df.sort_values("probabilidade_churn", ascending=False)
+    df["cum"] = df["valor_mensalidade"].cumsum()
+    total = df["valor_mensalidade"].sum()
+
+    fig = go.Figure()
+    fig.add_scatter(y=df["cum"] / total)
+
+    fig.update_layout(
+        paper_bgcolor=CARD,
+        plot_bgcolor=CARD,
+        font=dict(color=TEXT)
+    )
+
+    return fig
+
+
+def scatter(df):
+    return px.scatter(
+        df,
+        x="score_sentimento_voc",
+        y="probabilidade_churn",
+        size="valor_mensalidade",
+        color=PRIMARY_PAIN_LABEL
+    )
+
+# =============================
+# INSIGHTS AUTOMÁTICOS
+# =============================
+
+def generate_insight(df):
+    top = df.groupby(PRIMARY_PAIN_LABEL)["probabilidade_churn"].mean().idxmax()
+    risk = df["probabilidade_churn"].mean()
+
+    return f"Maior risco concentrado em: {top}. Risco médio da base: {risk:.1%}"
+
+# =============================
+# APP
+# =============================
+
+df = load_data()
+
+app = Dash(__name__)
+
+app.layout = html.Div(style={"background": BACKGROUND, "padding": "20px"}, children=[
+
+    html.H1("Boardroom Churn Dashboard", style={"color": TEXT}),
+
+    build_dre(df),
+
+    html.Div(generate_insight(df), style={"color": "gray", "margin": "20px 0"}),
+
+    html.Div([
+        dcc.Graph(figure=revenue_vs_risk(df)),
+        dcc.Graph(figure=churn_donut(df)),
+        dcc.Graph(figure=pareto(df)),
+        dcc.Graph(figure=scatter(df)),
+    ])
 ])
 
-# =========================
-# CALLBACK
-# =========================
-@app.callback(
-    Output("kpi-receita", "children"),
-    Output("kpi-ebitda", "children"),
-    Output("kpi-margem", "children"),
-    Output("kpi-devol", "children"),
-    Output("area-receita", "figure"),
-    Output("donut-ebitda", "figure"),
-    Output("dre", "children"),
-    Output("insights", "children"),
-
-    Input("regiao", "value"),
-    Input("canal", "value"),
-)
-def update(regiao, canal):
-
-    dff = df[df["regiao"].isin(regiao) & df["canal"].isin(canal)]
-
-    receita = dff["receita_liquida"].sum()
-    ebitda = dff["ebitda"].sum()
-    devol = dff["devolucoes"].sum()
-    margem = ebitda / receita if receita else 0
-
-    # KPI
-    kpi1 = f"Receita\n{brl(receita)}"
-    kpi2 = f"EBITDA\n{brl(ebitda)}"
-    kpi3 = f"Margem\n{pct(margem)}"
-    kpi4 = f"Devoluções\n{brl(devol)}"
-
-    # AREA
-    ts = dff.groupby("mes")["receita_liquida"].sum().reset_index()
-
-    fig_area = go.Figure()
-    fig_area.add_trace(go.Scatter(
-        x=ts["mes"], y=ts["receita_liquida"],
-        fill='tozeroy'
-    ))
-    fig_area.update_layout(template="plotly_dark")
-
-    # DONUT
-    canal_df = dff.groupby("canal")["ebitda"].sum().reset_index()
-    fig_donut = px.pie(canal_df, names="canal", values="ebitda", hole=0.6)
-    fig_donut.update_layout(template="plotly_dark")
-
-    # DRE
-    dre = html.Div([
-        html.H4("DRE"),
-        html.P(f"Receita Bruta: {brl(dff['receita_bruta'].sum())}"),
-        html.P(f"(-) Devoluções: {brl(devol)}"),
-        html.P(f"(=) Líquida: {brl(receita)}"),
-        html.P(f"(-) CMV: {brl(dff['cmv'].sum())}"),
-        html.P(f"(=) EBITDA: {brl(ebitda)}"),
-    ])
-
-    # INSIGHTS
-    criticos = dff[dff["prioridade_risco"] == "alta"].head(5)
-
-    insights = [
-        html.Div([
-            html.B(row["id_pdv"]),
-            html.P(row["recomendacoes"])
-        ]) for _, row in criticos.iterrows()
-    ]
-
-    return kpi1, kpi2, kpi3, kpi4, fig_area, fig_donut, dre, insights
-
+# =============================
+# RUN
+# =============================
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host="0.0.0.0", port=int(os.getenv("PORT", 8050)))
