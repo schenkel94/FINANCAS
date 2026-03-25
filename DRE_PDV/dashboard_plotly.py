@@ -1,3 +1,8 @@
+"""
+DRE PDV Dashboard — Dark SaaS Premium
+Requires: dash, dash-bootstrap-components, plotly, pandas, numpy
+Deploy: gunicorn app:server
+"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -7,487 +12,816 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from dash import Dash, Input, Output, dcc, html
+import dash_bootstrap_components as dbc
+from dash import Dash, Input, Output, State, dash_table, dcc, html, callback_context
 
-BASE_DIR = Path(__file__).resolve().parent 
+# ─── Paths ────────────────────────────────────────────────────────────────────
+BASE_DIR = Path(__file__).resolve().parent
 DATA_PATH = BASE_DIR / "data" / "processed" / "dre_pdv_mensal_consolidado_com_acoes.csv"
 
-if not DATA_PATH.exists():
-    raise FileNotFoundError(f"Arquivo nao encontrado: {DATA_PATH}")
+# ─── Plotly dark template ──────────────────────────────────────────────────────
+DARK_LAYOUT = dict(
+    paper_bgcolor="rgba(0,0,0,0)",
+    plot_bgcolor="rgba(0,0,0,0)",
+    font=dict(family="DM Sans, sans-serif", color="#7b8ea8", size=11),
+    margin=dict(l=10, r=10, t=10, b=10),
+    colorway=["#00d4ff", "#00e5a0", "#9b5de5", "#f4a026", "#ff4d6d", "#3dd6f5"],
+)
 
+GRID = dict(gridcolor="rgba(255,255,255,0.05)", zerolinecolor="rgba(255,255,255,0.05)")
 
+DARK_LEGEND = dict(
+    bgcolor="rgba(14,20,32,0.8)",
+    bordercolor="rgba(255,255,255,0.07)",
+    borderwidth=1,
+    font=dict(size=11, color="#7b8ea8"),
+)
+
+REGION_COLORS = {
+    "Sudeste":     "#00d4ff",
+    "Sul":         "#00e5a0",
+    "Nordeste":    "#f4a026",
+    "Centro-Oeste":"#9b5de5",
+    "Norte":       "#ff4d6d",
+}
+
+# ─── Data Loading ──────────────────────────────────────────────────────────────
 def load_data(path: Path) -> pd.DataFrame:
     df = pd.read_csv(path)
     df["mes"] = pd.to_datetime(df["mes"])
 
-    bool_cols = [
-        "flag_margem_abaixo_10",
-        "flag_queda_receita_20",
-        "flag_ebitda_negativo",
-    ]
+    bool_cols = ["flag_margem_abaixo_10", "flag_queda_receita_20", "flag_ebitda_negativo"]
     for col in bool_cols:
         if col in df.columns:
             if df[col].dtype == "object":
                 df[col] = df[col].astype(str).str.lower().map({"true": True, "false": False})
             df[col] = df[col].fillna(False).astype(bool)
 
-    numeric_cols = [
-        "receita_bruta",
-        "receita_liquida",
-        "lucro_operacional",
-        "ebitda",
-        "lucro_liquido",
-        "devolucoes",
-        "score_alerta",
+    num_cols = [
+        "receita_bruta", "receita_liquida", "lucro_bruto", "lucro_operacional",
+        "ebitda", "lucro_liquido", "devolucoes", "score_alerta",
+        "despesas_variaveis", "despesas_fixas", "cmv", "impostos",
+        "comissoes", "depreciacao_amortizacao", "resultado_financeiro",
+        "margem_bruta", "margem_operacional", "margem_ebitda", "margem_liquida",
+        "var_receita_vs_mes_anterior",
     ]
-    for col in numeric_cols:
+    for col in num_cols:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors="coerce").fillna(0.0)
 
-    df["regiao"] = df["regiao"].fillna("Nao informado")
-    df["canal"] = df["canal"].fillna("Nao informado")
+    df["regiao"] = df["regiao"].fillna("Não informado")
+    df["canal"]  = df["canal"].fillna("Não informado")
     return df
 
 
-def brl(value: float) -> str:
-    txt = f"{value:,.0f}"
-    txt = txt.replace(",", "X").replace(".", ",").replace("X", ".")
-    return f"R$ {txt}"
+DF = load_data(DATA_PATH)
 
 
-def pct(value: float) -> str:
-    return f"{value * 100:,.1f}%".replace(",", "X").replace(".", ",").replace("X", ".")
+# ─── Helpers ──────────────────────────────────────────────────────────────────
+def brl(v: float) -> str:
+    s = f"R$ {abs(v):,.0f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    return f"-{s}" if v < 0 else s
 
 
-def apply_filters(
-    df: pd.DataFrame,
-    regioes: Iterable[str] | None,
-    canais: Iterable[str] | None,
-    start_date: str | None,
-    end_date: str | None,
-) -> pd.DataFrame:
+def pct(v: float) -> str:
+    return f"{v * 100:,.1f}%".replace(",", "X").replace(".", ",").replace("X", ".")
+
+
+def delta_class(v: float) -> str:
+    if v > 0.005:  return "delta-up"
+    if v < -0.005: return "delta-down"
+    return "delta-flat"
+
+
+def delta_icon(v: float) -> str:
+    if v > 0.005:  return "▲"
+    if v < -0.005: return "▼"
+    return "●"
+
+
+def apply_filters(df: pd.DataFrame, regioes, canais, start, end, pdvs=None) -> pd.DataFrame:
     out = df.copy()
-    if regioes:
-        out = out[out["regiao"].isin(regioes)]
-    if canais:
-        out = out[out["canal"].isin(canais)]
-    if start_date:
-        out = out[out["mes"] >= pd.to_datetime(start_date)]
-    if end_date:
-        out = out[out["mes"] <= pd.to_datetime(end_date)]
+    if regioes:  out = out[out["regiao"].isin(regioes)]
+    if canais:   out = out[out["canal"].isin(canais)]
+    if pdvs:     out = out[out["id_pdv"].isin(pdvs)]
+    if start:    out = out[out["mes"] >= pd.to_datetime(start)]
+    if end:      out = out[out["mes"] <= pd.to_datetime(end)]
     return out
 
 
-def aggregate_pdv(df: pd.DataFrame) -> pd.DataFrame:
-    keys = [
-        "id_pdv",
-        "regiao",
-        "canal",
-        "driver_principal",
-        "prioridade_risco",
-        "qtd_recomendacoes",
-        "recomendacoes",
-    ]
-    agg = (
-        df.groupby(keys, as_index=False)
-        .agg(
-            receita_liquida_total=("receita_liquida", "sum"),
-            receita_bruta_total=("receita_bruta", "sum"),
-            lucro_operacional_total=("lucro_operacional", "sum"),
-            ebitda_total=("ebitda", "sum"),
-            lucro_liquido_total=("lucro_liquido", "sum"),
-            devolucoes_total=("devolucoes", "sum"),
-            score_alerta_medio=("score_alerta", "mean"),
-        )
-        .sort_values("id_pdv")
-        .reset_index(drop=True)
-    )
-
-    agg["margem_operacional_total"] = np.where(
-        agg["receita_liquida_total"] > 0,
-        agg["lucro_operacional_total"] / agg["receita_liquida_total"],
-        np.nan,
-    )
-    agg["pct_devolucao"] = np.where(
-        agg["receita_bruta_total"] > 0,
-        agg["devolucoes_total"] / agg["receita_bruta_total"],
-        np.nan,
-    )
-    agg["pdv_critico"] = (
-        (agg["margem_operacional_total"] < 0.10)
-        | (agg["ebitda_total"] < 0)
-        | (agg["score_alerta_medio"] >= 1.5)
-    )
-    return agg
-
-
-def fig_ranking(agg: pd.DataFrame) -> go.Figure:
-    ranking = agg.sort_values("lucro_liquido_total", ascending=True).head(15).copy()
-    ranking = ranking.sort_values("lucro_liquido_total", ascending=True)
-
-    if ranking.empty:
-        fig = go.Figure()
-        fig.update_layout(template="plotly_white", title="Ranking de PDVs")
-        return fig
-
-    ranking["status"] = np.where(ranking["pdv_critico"], "Critico", "Saudavel")
-    color_map = {"Critico": "#D1495B", "Saudavel": "#2A9D8F"}
-
-    fig = px.bar(
-        ranking,
-        x="lucro_liquido_total",
-        y="id_pdv",
-        color="status",
-        orientation="h",
-        color_discrete_map=color_map,
-        hover_data={
-            "regiao": True,
-            "canal": True,
-            "margem_operacional_total": ":.2%",
-            "lucro_liquido_total": ":,.2f",
-            "id_pdv": False,
-            "status": False,
-        },
-        labels={"lucro_liquido_total": "Lucro Liquido Total", "id_pdv": "PDV"},
-        title="Ranking de Rentabilidade (15 piores no filtro)",
-    )
-    fig.update_layout(template="plotly_white", legend_title_text="Status")
-    fig.update_xaxes(tickprefix="R$ ")
-    return fig
-
-
-def fig_temporal(df: pd.DataFrame, selected_pdv: str | None) -> go.Figure:
-    if df.empty:
-        fig = go.Figure()
-        fig.update_layout(template="plotly_white", title="Evolucao Temporal")
-        return fig
-
-    if selected_pdv and selected_pdv in set(df["id_pdv"]):
-        frame = df[df["id_pdv"] == selected_pdv]
-        title = f"Evolucao Temporal - {selected_pdv}"
-    else:
-        frame = df
-        title = "Evolucao Temporal - Consolidado do Filtro"
-
-    timeline = (
-        frame.groupby("mes", as_index=False)
-        .agg(
-            receita_liquida=("receita_liquida", "sum"),
-            ebitda=("ebitda", "sum"),
-            lucro_liquido=("lucro_liquido", "sum"),
-        )
-        .sort_values("mes")
-    )
-
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=timeline["mes"], y=timeline["receita_liquida"], mode="lines+markers", name="Receita Liquida", line=dict(color="#1D3557", width=3)))
-    fig.add_trace(go.Scatter(x=timeline["mes"], y=timeline["ebitda"], mode="lines+markers", name="EBITDA", line=dict(color="#2A9D8F", width=2)))
-    fig.add_trace(go.Scatter(x=timeline["mes"], y=timeline["lucro_liquido"], mode="lines+markers", name="Lucro Liquido", line=dict(color="#E76F51", width=2)))
-
-    fig.update_layout(
-        template="plotly_white",
-        title=title,
-        legend_title_text="Metricas",
-        margin=dict(l=30, r=20, t=60, b=30),
-    )
-    fig.update_yaxes(tickprefix="R$ ")
-    return fig
-
-
-def fig_scatter(agg: pd.DataFrame) -> go.Figure:
-    if agg.empty:
-        fig = go.Figure()
-        fig.update_layout(template="plotly_white", title="Receita x Margem")
-        return fig
-
-    frame = agg.copy()
-    frame["status"] = np.where(frame["pdv_critico"], "Critico", "Saudavel")
-    frame["tamanho"] = frame["receita_liquida_total"].clip(lower=1)
-
-    fig = px.scatter(
-        frame,
-        x="receita_liquida_total",
-        y="margem_operacional_total",
-        color="status",
-        size="tamanho",
-        size_max=35,
-        color_discrete_map={"Critico": "#D1495B", "Saudavel": "#2A9D8F"},
-        hover_name="id_pdv",
-        hover_data={
-            "regiao": True,
-            "canal": True,
-            "driver_principal": True,
-            "prioridade_risco": True,
-            "lucro_liquido_total": ":,.2f",
-            "receita_liquida_total": ":,.2f",
-            "margem_operacional_total": ":.2%",
-            "tamanho": False,
-            "status": False,
-        },
-        title="Dispersao Receita Liquida x Margem Operacional",
-        labels={
-            "receita_liquida_total": "Receita Liquida Total",
-            "margem_operacional_total": "Margem Operacional",
-        },
-    )
-
-    fig.add_hline(y=0.10, line_color="#FFB703", line_dash="dash", annotation_text="Limite de alerta: 10%", annotation_position="bottom right")
-    fig.update_layout(template="plotly_white", legend_title_text="Status")
-    fig.update_xaxes(tickprefix="R$ ")
-    fig.update_yaxes(tickformat=".0%")
-    return fig
-
-
-def fig_regional(df: pd.DataFrame) -> go.Figure:
-    if df.empty:
-        fig = go.Figure()
-        fig.update_layout(template="plotly_white", title="Comparativo Regional")
-        return fig
-
-    regional = (
-        df.groupby("regiao", as_index=False)
-        .agg(
-            receita_liquida=("receita_liquida", "sum"),
-            lucro_operacional=("lucro_operacional", "sum"),
-        )
-        .sort_values("receita_liquida", ascending=False)
-    )
-    regional["margem_operacional"] = np.where(
-        regional["receita_liquida"] > 0,
-        regional["lucro_operacional"] / regional["receita_liquida"],
-        np.nan,
-    )
-
-    fig = px.bar(
-        regional,
-        x="regiao",
-        y="margem_operacional",
-        color="margem_operacional",
-        color_continuous_scale=["#D1495B", "#F4A261", "#2A9D8F"],
-        title="Margem Operacional por Regiao",
-        labels={"margem_operacional": "Margem Operacional", "regiao": "Regiao"},
-    )
-    fig.update_layout(template="plotly_white", coloraxis_showscale=False)
-    fig.update_yaxes(tickformat=".0%")
-    return fig
-
-
-def recommendations_block(agg: pd.DataFrame, selected_pdv: str | None) -> html.Div:
-    if agg.empty:
-        return html.Div("Nenhum dado disponivel para os filtros selecionados.", className="empty-state")
-
-    if selected_pdv and selected_pdv in set(agg["id_pdv"]):
-        target = agg[agg["id_pdv"] == selected_pdv].iloc[0]
-    else:
-        target = agg.sort_values(["pdv_critico", "lucro_liquido_total"], ascending=[False, True]).iloc[0]
-
-    texto = str(target.get("recomendacoes", ""))
-    recs = [r.strip() for r in texto.split("|") if r.strip()]
-    if not recs:
-        recs = ["Sem recomendacoes disponiveis para este PDV."]
-
+# ─── Layout Helpers ────────────────────────────────────────────────────────────
+def kpi_card(card_id: str, icon: str, label: str, dot_color: str = "cyan") -> html.Div:
     return html.Div(
-        [
-            html.Div([
-                html.H4(f"PDV focal: {target['id_pdv']}", className="rec-title"),
-                html.Div(f"Driver: {target.get('driver_principal', 'n/a')}", className="rec-chip chip-driver"),
-                html.Div(f"Prioridade: {target.get('prioridade_risco', 'n/a')}", className="rec-chip chip-priority"),
-            ], className="rec-header"),
-            html.Ul([html.Li(rec) for rec in recs], className="rec-list"),
-        ],
-        className="recommendation-card",
-    )
-
-
-def metric_card(title: str, element_id: str) -> html.Div:
-    return html.Div(
-        [
-            html.Div(title, className="kpi-title"),
-            html.Div("--", id=element_id, className="kpi-value"),
-        ],
         className="kpi-card",
+        children=[
+            html.Div(icon, className="kpi-icon"),
+            html.Div(label, className="kpi-label"),
+            html.Div(id=f"kpi-{card_id}", className="kpi-value", children="—"),
+            html.Div(id=f"kpi-{card_id}-delta", className="kpi-delta delta-flat", children="—"),
+        ],
     )
 
 
-df_base = load_data(DATA_PATH)
-min_date = df_base["mes"].min().date()
-max_date = df_base["mes"].max().date()
+def section_title(text: str, dot: str = "cyan") -> html.Div:
+    return html.Div(
+        className="chart-card-title",
+        children=[html.Span(className=f"dot dot-{dot}"), text],
+    )
 
-app = Dash(__name__)
-app.title = "DRE por PDV - Dashboard Plotly"
-server = app.server
 
+# ─── App Init ─────────────────────────────────────────────────────────────────
+app = Dash(
+    __name__,
+    external_stylesheets=[dbc.themes.BOOTSTRAP],
+    suppress_callback_exceptions=True,
+    title="DRE PDV · Analytics",
+    meta_tags=[{"name": "viewport", "content": "width=device-width, initial-scale=1"}],
+)
+server = app.server  # for Render / Gunicorn
+
+MESES     = sorted(DF["mes"].dt.strftime("%Y-%m-%d").unique())
+REGIOES   = sorted(DF["regiao"].unique())
+CANAIS    = sorted(DF["canal"].unique())
+ALL_PDVS  = sorted(DF["id_pdv"].unique())
+
+# ─── Layout ───────────────────────────────────────────────────────────────────
 app.layout = html.Div(
-    [
+    className="app-shell",
+    children=[
+        # ── Hero ──────────────────────────────────────────────────────────────
         html.Div(
-            [
-                html.H1("Rentabilidade por PDV", className="page-title"),
-                html.P("Dashboard analitico de DRE com filtros, criticidade e planos de acao.", className="page-subtitle"),
-            ],
             className="hero",
-        ),
-        html.Div(
-            [
+            children=[
                 html.Div(
-                    [
-                        html.Label("Regiao"),
-                        dcc.Dropdown(
-                            id="filter-regiao",
-                            options=[{"label": r, "value": r} for r in sorted(df_base["regiao"].unique())],
-                            value=sorted(df_base["regiao"].unique()),
-                            multi=True,
-                            clearable=False,
+                    className="hero-left",
+                    children=[
+                        html.H1("DRE PDV Analytics", className="page-title"),
+                        html.P(
+                            "Demonstrativo de Resultados · Visão Consolidada por Ponto de Venda",
+                            className="page-subtitle",
                         ),
                     ],
-                    className="filter-item",
                 ),
                 html.Div(
-                    [
-                        html.Label("Canal"),
-                        dcc.Dropdown(
-                            id="filter-canal",
-                            options=[{"label": c, "value": c} for c in sorted(df_base["canal"].unique())],
-                            value=sorted(df_base["canal"].unique()),
-                            multi=True,
-                            clearable=False,
-                        ),
+                    className="hero-badge",
+                    children=[
+                        html.Div(className="live-dot"),
+                        html.Span("LIVE DATA", className="live-label"),
                     ],
-                    className="filter-item",
-                ),
-                html.Div(
-                    [
-                        html.Label("Periodo"),
-                        dcc.DatePickerRange(
-                            id="filter-periodo",
-                            min_date_allowed=min_date,
-                            max_date_allowed=max_date,
-                            start_date=min_date,
-                            end_date=max_date,
-                            display_format="YYYY-MM",
-                        ),
-                    ],
-                    className="filter-item",
-                ),
-                html.Div(
-                    [
-                        html.Label("PDV (foco)"),
-                        dcc.Dropdown(id="filter-pdv", placeholder="Consolidado dos filtros", clearable=True),
-                    ],
-                    className="filter-item",
                 ),
             ],
-            className="filters",
         ),
+
+        # ── Filters ────────────────────────────────────────────────────────────
         html.Div(
-            [
-                metric_card("Receita Liquida", "kpi-receita"),
-                metric_card("Margem Operacional", "kpi-margem"),
-                metric_card("EBITDA", "kpi-ebitda"),
-                metric_card("Lucro Liquido", "kpi-lucro"),
-                metric_card("PDVs Criticos", "kpi-criticos"),
+            className="filters-bar",
+            children=[
+                html.Div([
+                    html.Label("Período"),
+                    dcc.DatePickerRange(
+                        id="filter-period",
+                        min_date_allowed=MESES[0],
+                        max_date_allowed=MESES[-1],
+                        start_date=MESES[0],
+                        end_date=MESES[-1],
+                        display_format="MM/YYYY",
+                        style={"width": "100%"},
+                    ),
+                ], className="filter-item"),
+                html.Div([
+                    html.Label("Região"),
+                    dcc.Dropdown(
+                        id="filter-regiao",
+                        options=[{"label": r, "value": r} for r in REGIOES],
+                        multi=True,
+                        placeholder="Todas as regiões",
+                        clearable=True,
+                    ),
+                ], className="filter-item"),
+                html.Div([
+                    html.Label("Canal"),
+                    dcc.Dropdown(
+                        id="filter-canal",
+                        options=[{"label": c, "value": c} for c in CANAIS],
+                        multi=True,
+                        placeholder="Todos os canais",
+                        clearable=True,
+                    ),
+                ], className="filter-item"),
+                html.Div([
+                    html.Label("PDV"),
+                    dcc.Dropdown(
+                        id="filter-pdv",
+                        options=[{"label": p, "value": p} for p in ALL_PDVS],
+                        multi=True,
+                        placeholder="Todos os PDVs",
+                        clearable=True,
+                    ),
+                ], className="filter-item"),
             ],
+        ),
+
+        # ── KPI Cards ─────────────────────────────────────────────────────────
+        html.Div(
             className="kpi-grid",
-        ),
-        html.Div(
-            [
-                dcc.Graph(id="fig-ranking", className="chart-card"),
-                dcc.Graph(id="fig-temporal", className="chart-card"),
+            children=[
+                kpi_card("receita",  "💰", "Receita Líquida"),
+                kpi_card("margem",   "📊", "Margem Operacional"),
+                kpi_card("ebitda",   "⚡", "EBITDA"),
+                kpi_card("lucro",    "🏆", "Lucro Líquido"),
+                kpi_card("criticos", "🚨", "PDVs Críticos"),
             ],
-            className="chart-grid two-col",
         ),
+
+        # ── Main Layout: DRE sidebar + 4 charts ───────────────────────────────
         html.Div(
-            [
-                dcc.Graph(id="fig-scatter", className="chart-card"),
-                dcc.Graph(id="fig-regional", className="chart-card"),
+            className="main-layout",
+            children=[
+                # DRE Panel
+                html.Div(
+                    className="dre-panel",
+                    children=[
+                        html.Div("Demonstrativo de Resultados", className="dre-title"),
+                        html.Div(id="dre-content"),
+                    ],
+                ),
+                # 2x2 Charts
+                html.Div(
+                    className="charts-grid",
+                    children=[
+                        html.Div(
+                            className="chart-card",
+                            children=[
+                                section_title("Distribuição por Canal", "cyan"),
+                                dcc.Graph(id="chart-donut", config={"displayModeBar": False},
+                                          style={"height": "260px"}),
+                            ],
+                        ),
+                        html.Div(
+                            className="chart-card",
+                            children=[
+                                section_title("Receita x Margem Operacional", "green"),
+                                dcc.Graph(id="chart-scatter", config={"displayModeBar": False},
+                                          style={"height": "260px"}),
+                            ],
+                        ),
+                        html.Div(
+                            className="chart-card",
+                            children=[
+                                section_title("Evolução do Lucro Líquido", "purple"),
+                                dcc.Graph(id="chart-linhas", config={"displayModeBar": False},
+                                          style={"height": "260px"}),
+                            ],
+                        ),
+                        html.Div(
+                            className="chart-card",
+                            children=[
+                                section_title("Top PDVs por Receita Líquida", "amber"),
+                                dcc.Graph(id="chart-bar-pdv", config={"displayModeBar": False},
+                                          style={"height": "260px"}),
+                            ],
+                        ),
+                    ],
+                ),
             ],
-            className="chart-grid two-col",
         ),
+
+        # ── Bottom Row: Map + Composição DRE ──────────────────────────────────
         html.Div(
-            [
-                html.H3("Planos de Acao Recomendados", className="section-title"),
-                html.Div(id="bloco-recomendacoes"),
+            className="bottom-charts",
+            children=[
+                html.Div(
+                    className="chart-card",
+                    children=[
+                        section_title("Mapa do Brasil · PDVs por Região", "cyan"),
+                        dcc.Graph(id="chart-mapa", config={"displayModeBar": False},
+                                  style={"height": "380px"}),
+                    ],
+                ),
+                html.Div(
+                    className="chart-card",
+                    children=[
+                        section_title("Composição de Resultado por Região", "green"),
+                        dcc.Graph(id="chart-bar-regiao", config={"displayModeBar": False},
+                                  style={"height": "380px"}),
+                    ],
+                ),
             ],
-            className="actions-section",
+        ),
+
+        # ── Insights Table ────────────────────────────────────────────────────
+        html.Div(
+            className="insights-section",
+            children=[
+                html.Div(
+                    className="section-header",
+                    children=[
+                        html.Div(
+                            className="section-title",
+                            children=[
+                                html.Span("⚠", style={"color": "#ff4d6d"}),
+                                "PDVs Críticos — Planos de Ação",
+                                html.Span(id="badge-criticos", className="badge-count", children="0"),
+                            ],
+                        ),
+                    ],
+                ),
+                html.Div(id="insights-table"),
+            ],
+        ),
+
+        # Footer
+        html.Div(
+            "DRE PDV Analytics · Powered by Dash & Plotly · Dados atualizados automaticamente",
+            className="footer",
         ),
     ],
-    className="app-shell",
 )
 
 
+# ─── Master Callback ──────────────────────────────────────────────────────────
 @app.callback(
-    Output("filter-pdv", "options"),
-    Output("filter-pdv", "value"),
-    Input("filter-regiao", "value"),
-    Input("filter-canal", "value"),
-    Input("filter-periodo", "start_date"),
-    Input("filter-periodo", "end_date"),
-    Input("filter-pdv", "value"),
+    Output("kpi-receita",        "children"),
+    Output("kpi-receita-delta",  "children"),
+    Output("kpi-receita-delta",  "className"),
+    Output("kpi-margem",         "children"),
+    Output("kpi-margem-delta",   "children"),
+    Output("kpi-margem-delta",   "className"),
+    Output("kpi-ebitda",         "children"),
+    Output("kpi-ebitda-delta",   "children"),
+    Output("kpi-ebitda-delta",   "className"),
+    Output("kpi-lucro",          "children"),
+    Output("kpi-lucro-delta",    "children"),
+    Output("kpi-lucro-delta",    "className"),
+    Output("kpi-criticos",       "children"),
+    Output("kpi-criticos-delta", "children"),
+    Output("kpi-criticos-delta", "className"),
+    Output("dre-content",        "children"),
+    Output("chart-donut",        "figure"),
+    Output("chart-scatter",      "figure"),
+    Output("chart-linhas",       "figure"),
+    Output("chart-bar-pdv",      "figure"),
+    Output("chart-mapa",         "figure"),
+    Output("chart-bar-regiao",   "figure"),
+    Output("insights-table",     "children"),
+    Output("badge-criticos",     "children"),
+    Input("filter-period",  "start_date"),
+    Input("filter-period",  "end_date"),
+    Input("filter-regiao",  "value"),
+    Input("filter-canal",   "value"),
+    Input("filter-pdv",     "value"),
 )
-def update_pdv_options(regioes, canais, start_date, end_date, pdv_atual):
-    filtered = apply_filters(df_base, regioes, canais, start_date, end_date)
-    options = [{"label": p, "value": p} for p in sorted(filtered["id_pdv"].unique())]
-    if pdv_atual not in [o["value"] for o in options]:
-        pdv_atual = None
-    return options, pdv_atual
+def update_all(start, end, regioes, canais, pdvs):
+    dff = apply_filters(DF, regioes, canais, start, end, pdvs)
 
+    # ── Helpers ---------------------------------------------------------------
+    def safe_pct_delta(curr, prev):
+        if prev and prev != 0:
+            return (curr - prev) / abs(prev)
+        return 0.0
 
-@app.callback(
-    Output("kpi-receita", "children"),
-    Output("kpi-margem", "children"),
-    Output("kpi-ebitda", "children"),
-    Output("kpi-lucro", "children"),
-    Output("kpi-criticos", "children"),
-    Output("fig-ranking", "figure"),
-    Output("fig-temporal", "figure"),
-    Output("fig-scatter", "figure"),
-    Output("fig-regional", "figure"),
-    Output("bloco-recomendacoes", "children"),
-    Input("filter-regiao", "value"),
-    Input("filter-canal", "value"),
-    Input("filter-periodo", "start_date"),
-    Input("filter-periodo", "end_date"),
-    Input("filter-pdv", "value"),
-)
-def update_dashboard(regioes, canais, start_date, end_date, selected_pdv):
-    filtered = apply_filters(df_base, regioes, canais, start_date, end_date)
+    # ── Period split for delta (compare last month vs prev month in selection) -
+    meses_sorted = sorted(dff["mes"].unique())
+    if len(meses_sorted) >= 2:
+        last_mes  = dff[dff["mes"] == meses_sorted[-1]]
+        prev_mes  = dff[dff["mes"] == meses_sorted[-2]]
+    else:
+        last_mes  = dff
+        prev_mes  = pd.DataFrame(columns=dff.columns)
 
-    if filtered.empty:
-        vazio = go.Figure().update_layout(template="plotly_white", title="Sem dados para o filtro")
-        return (
-            "R$ 0",
-            "0,0%",
-            "R$ 0",
-            "R$ 0",
-            "0",
-            vazio,
-            vazio,
-            vazio,
-            vazio,
-            html.Div("Ajuste os filtros para visualizar recomendacoes.", className="empty-state"),
+    def kpi_delta_vals(col, is_pct=False):
+        curr = last_mes[col].sum() if not is_pct else last_mes[col].mean()
+        prev = prev_mes[col].sum() if not prev_mes.empty and not is_pct else (prev_mes[col].mean() if not prev_mes.empty else 0)
+        delta = safe_pct_delta(curr, prev)
+        return curr, delta
+
+    # ── KPIs ------------------------------------------------------------------
+    rl_curr,  rl_d  = kpi_delta_vals("receita_liquida")
+    mo_curr,  mo_d  = kpi_delta_vals("margem_operacional", is_pct=True)
+    eb_curr,  eb_d  = kpi_delta_vals("ebitda")
+    ll_curr,  ll_d  = kpi_delta_vals("lucro_liquido")
+
+    criticos_n = dff[dff["prioridade_risco"] == "alta"]["id_pdv"].nunique()
+    criticos_prev = (prev_mes[prev_mes["prioridade_risco"] == "alta"]["id_pdv"].nunique()
+                     if not prev_mes.empty else 0)
+    crit_d = safe_pct_delta(criticos_n, criticos_prev)
+
+    def fmt_delta(d):
+        sign = "+" if d > 0 else ""
+        return f"{delta_icon(d)} {sign}{d*100:.1f}%"
+
+    kpi_results = [
+        brl(rl_curr),  fmt_delta(rl_d),  f"kpi-delta {delta_class(rl_d)}",
+        pct(mo_curr),  fmt_delta(mo_d),  f"kpi-delta {delta_class(mo_d)}",
+        brl(eb_curr),  fmt_delta(eb_d),  f"kpi-delta {delta_class(eb_d)}",
+        brl(ll_curr),  fmt_delta(ll_d),  f"kpi-delta {delta_class(ll_d)}",
+        str(criticos_n), fmt_delta(crit_d), f"kpi-delta {delta_class(-crit_d)}",  # less is good
+    ]
+
+    # ── DRE ------------------------------------------------------------------
+    def dre_row(label, value, cls=""):
+        return html.Div(
+            className=f"dre-row {cls}",
+            children=[
+                html.Span(label, className="dre-row-label"),
+                html.Span(value, className="dre-row-value"),
+            ],
         )
 
-    agg = aggregate_pdv(filtered)
+    agg = dff.agg({
+        "receita_bruta":             "sum",
+        "devolucoes":                "sum",
+        "receita_liquida":           "sum",
+        "cmv":                       "sum",
+        "lucro_bruto":               "sum",
+        "despesas_variaveis":        "sum",
+        "despesas_fixas":            "sum",
+        "lucro_operacional":         "sum",
+        "depreciacao_amortizacao":   "sum",
+        "ebitda":                    "sum",
+        "resultado_financeiro":      "sum",
+        "lucro_liquido":             "sum",
+    })
 
-    receita_total = filtered["receita_liquida"].sum()
-    ebitda_total = filtered["ebitda"].sum()
-    lucro_total = filtered["lucro_liquido"].sum()
-    lucro_oper_total = filtered["lucro_operacional"].sum()
-    margem_oper = lucro_oper_total / receita_total if receita_total else 0.0
-    qtd_criticos = int(agg["pdv_critico"].sum())
+    mg_op  = agg["lucro_operacional"] / agg["receita_liquida"] if agg["receita_liquida"] else 0
+    mg_ebt = agg["ebitda"] / agg["receita_liquida"] if agg["receita_liquida"] else 0
+    mg_liq = agg["lucro_liquido"] / agg["receita_liquida"] if agg["receita_liquida"] else 0
 
-    return (
-        brl(receita_total),
-        pct(margem_oper),
-        brl(ebitda_total),
-        brl(lucro_total),
-        str(qtd_criticos),
-        fig_ranking(agg),
-        fig_temporal(filtered, selected_pdv),
-        fig_scatter(agg),
-        fig_regional(filtered),
-        recommendations_block(agg, selected_pdv),
+    dre_children = [
+        dre_row("Receita Bruta",          brl(agg["receita_bruta"])),
+        dre_row("(−) Devoluções",          brl(-agg["devolucoes"]), "negative"),
+        html.Div(className="dre-section-sep"),
+        dre_row("Receita Líquida",         brl(agg["receita_liquida"]), "highlight"),
+        dre_row("(−) CMV",                 brl(-agg["cmv"]), "negative"),
+        html.Div(className="dre-section-sep"),
+        dre_row("Lucro Bruto",             brl(agg["lucro_bruto"]),
+                "positive" if agg["lucro_bruto"] >= 0 else "negative"),
+        dre_row("(−) Desp. Variáveis",     brl(-agg["despesas_variaveis"]), "negative"),
+        dre_row("(−) Desp. Fixas",         brl(-agg["despesas_fixas"]), "negative"),
+        html.Div(className="dre-section-sep"),
+        dre_row("Resultado Operacional",   brl(agg["lucro_operacional"]),
+                "positive" if agg["lucro_operacional"] >= 0 else "negative"),
+        dre_row("Margem Operacional",      pct(mg_op),
+                "positive" if mg_op >= 0 else "negative"),
+        dre_row("(+) Depr./Amort.",        brl(agg["depreciacao_amortizacao"])),
+        html.Div(className="dre-section-sep"),
+        dre_row("EBITDA",                  brl(agg["ebitda"]),
+                "highlight " + ("positive" if agg["ebitda"] >= 0 else "negative")),
+        dre_row("Margem EBITDA",           pct(mg_ebt),
+                "positive" if mg_ebt >= 0 else "negative"),
+        dre_row("Res. Financeiro",         brl(agg["resultado_financeiro"])),
+        html.Div(className="dre-section-sep"),
+        dre_row("Lucro Líquido",           brl(agg["lucro_liquido"]),
+                "highlight " + ("positive" if agg["lucro_liquido"] >= 0 else "negative")),
+        dre_row("Margem Líquida",          pct(mg_liq),
+                "positive" if mg_liq >= 0 else "negative"),
+    ]
+
+    # ── Donut – Canal --------------------------------------------------------
+    canal_agg = dff.groupby("canal")["receita_liquida"].sum().reset_index()
+    fig_donut = go.Figure(go.Pie(
+        labels=canal_agg["canal"],
+        values=canal_agg["receita_liquida"],
+        hole=0.62,
+        marker=dict(colors=["#00d4ff", "#00e5a0", "#9b5de5", "#f4a026"],
+                    line=dict(color="#0e1420", width=3)),
+        textinfo="percent",
+        hovertemplate="<b>%{label}</b><br>Receita: R$ %{value:,.0f}<extra></extra>",
+    ))
+    fig_donut.add_annotation(
+        text=f"<b>{len(canal_agg)}</b><br><span style='font-size:9px'>canais</span>",
+        x=0.5, y=0.5, showarrow=False,
+        font=dict(size=18, color="#e8edf5"),
+    )
+    fig_donut.update_layout(**DARK_LAYOUT, showlegend=True,
+                             legend=dict(orientation="v", x=1.02, y=0.5,
+                                         font=dict(size=11, color="#7b8ea8")))
+
+    # ── Scatter – Receita x Margem -------------------------------------------
+    pdv_agg = (
+        dff.groupby(["id_pdv", "regiao", "canal"])
+        .agg(receita_liquida=("receita_liquida", "sum"),
+             margem_op=("margem_operacional", "mean"),
+             lucro_liquido=("lucro_liquido", "sum"),
+             score=("score_alerta", "mean"))
+        .reset_index()
+    )
+    max_ll = max(pdv_agg["lucro_liquido"].abs().max(), 1)
+
+    fig_scatter = go.Figure()
+    for reg in pdv_agg["regiao"].unique():
+        sub = pdv_agg[pdv_agg["regiao"] == reg]
+        fig_scatter.add_trace(go.Scatter(
+            x=sub["receita_liquida"],
+            y=sub["margem_op"] * 100,
+            mode="markers",
+            name=reg,
+            marker=dict(
+                size=sub["lucro_liquido"].abs() / max_ll * 22 + 6,
+                color=REGION_COLORS.get(reg, "#7b8ea8"),
+                opacity=0.8,
+                line=dict(width=1, color="rgba(255,255,255,0.15)"),
+            ),
+            text=sub["id_pdv"],
+            customdata=sub[["lucro_liquido", "canal"]],
+            hovertemplate=(
+                "<b>%{text}</b><br>"
+                "Receita: R$ %{x:,.0f}<br>"
+                "Margem Op.: %{y:.1f}%<br>"
+                "Canal: %{customdata[1]}<extra></extra>"
+            ),
+        ))
+    fig_scatter.add_hline(y=0, line_dash="dash", line_color="rgba(255,77,109,0.4)", line_width=1)
+    fig_scatter.update_layout(
+        **DARK_LAYOUT,
+        showlegend=True,
+        legend=dict(orientation="h", y=-0.18, x=0, font=dict(size=10)),
+        xaxis_title="Receita Líquida (R$)",
+        yaxis_title="Margem Op. (%)",
+        xaxis=dict(gridcolor="rgba(255,255,255,0.05)", tickformat=",.0f",
+                   zerolinecolor="rgba(255,255,255,0.05)"),
+        yaxis=dict(gridcolor="rgba(255,255,255,0.05)", ticksuffix="%",
+                   zerolinecolor="rgba(255,255,255,0.08)"),
     )
 
+    # ── Line – Lucro Líquido evolution ----------------------------------------
+    time_agg = dff.groupby("mes")["lucro_liquido"].sum().reset_index()
+    time_agg = time_agg.sort_values("mes")
+    positive_mask = time_agg["lucro_liquido"] >= 0
 
+    fig_line = go.Figure()
+    # Gradient fill
+    fig_line.add_trace(go.Scatter(
+        x=time_agg["mes"], y=time_agg["lucro_liquido"],
+        mode="lines",
+        name="Lucro Líquido",
+        line=dict(color="#9b5de5", width=2.5, shape="spline"),
+        fill="tozeroy",
+        fillcolor="rgba(155,93,229,0.12)",
+        hovertemplate="<b>%{x|%b %Y}</b><br>Lucro: R$ %{y:,.0f}<extra></extra>",
+    ))
+    fig_line.add_hline(y=0, line_color="rgba(255,77,109,0.4)", line_width=1, line_dash="dot")
+    fig_line.update_layout(
+        **DARK_LAYOUT,
+        showlegend=False,
+        xaxis=dict(tickformat="%b/%y", gridcolor="rgba(255,255,255,0.05)",
+                   zerolinecolor="rgba(255,255,255,0.05)"),
+        yaxis=dict(tickformat=",.0f", gridcolor="rgba(255,255,255,0.05)",
+                   zerolinecolor="rgba(255,255,255,0.05)"),
+    )
+
+    # ── Bar – Top PDVs -------------------------------------------------------
+    top_pdv = (
+        dff.groupby("id_pdv")["receita_liquida"].sum()
+        .sort_values(ascending=False).head(12).reset_index()
+    )
+    top_pdv["cor"] = top_pdv["receita_liquida"].apply(
+        lambda v: "#00d4ff" if v >= top_pdv["receita_liquida"].quantile(0.66)
+        else "#00e5a0" if v >= top_pdv["receita_liquida"].quantile(0.33) else "#f4a026"
+    )
+    fig_bar = go.Figure(go.Bar(
+        y=top_pdv["id_pdv"],
+        x=top_pdv["receita_liquida"],
+        orientation="h",
+        marker=dict(color=top_pdv["cor"], opacity=0.9,
+                    line=dict(color="rgba(255,255,255,0.08)", width=0.5)),
+        hovertemplate="<b>%{y}</b><br>Receita: R$ %{x:,.0f}<extra></extra>",
+    ))
+    fig_bar.update_layout(
+        **DARK_LAYOUT,
+        showlegend=False,
+        yaxis=dict(gridcolor="rgba(255,255,255,0.0)", autorange="reversed",
+                   tickfont=dict(size=10), zerolinecolor="rgba(255,255,255,0.05)"),
+        xaxis=dict(gridcolor="rgba(255,255,255,0.05)", tickformat=",.0f",
+                   zerolinecolor="rgba(255,255,255,0.05)"),
+        bargap=0.35,
+    )
+
+    # ── Mapa do Brasil --------------------------------------------------------
+    # Approximate centroids for Brazilian regions
+    REGION_GEO = {
+        "Sudeste":     {"lat": -20.5, "lon": -43.9},
+        "Sul":         {"lat": -27.6, "lon": -51.0},
+        "Nordeste":    {"lat": -8.0,  "lon": -38.5},
+        "Centro-Oeste":{"lat": -15.8, "lon": -52.2},
+        "Norte":       {"lat": -4.0,  "lon": -61.0},
+    }
+
+    reg_agg = (
+        dff.groupby("regiao")
+        .agg(
+            receita_liquida=("receita_liquida", "sum"),
+            margem_op=("margem_operacional", "mean"),
+            ebitda=("ebitda", "sum"),
+            lucro_liquido=("lucro_liquido", "sum"),
+            n_pdv=("id_pdv", "nunique"),
+            n_criticos=("prioridade_risco", lambda x: (x == "alta").sum()),
+        )
+        .reset_index()
+    )
+
+    reg_agg["lat"] = reg_agg["regiao"].map(lambda r: REGION_GEO.get(r, {}).get("lat", -15))
+    reg_agg["lon"] = reg_agg["regiao"].map(lambda r: REGION_GEO.get(r, {}).get("lon", -55))
+    reg_agg["color"] = reg_agg["regiao"].map(lambda r: REGION_COLORS.get(r, "#7b8ea8"))
+    reg_agg["size_norm"] = (
+        (reg_agg["receita_liquida"] / reg_agg["receita_liquida"].max()) * 40 + 15
+    )
+
+    fig_mapa = go.Figure()
+
+    # Brazil outline (simplified scatter_geo)
+    fig_mapa.add_trace(go.Scattergeo(
+        lat=reg_agg["lat"],
+        lon=reg_agg["lon"],
+        mode="markers+text",
+        marker=dict(
+            size=reg_agg["size_norm"],
+            color=reg_agg["color"],
+            opacity=0.85,
+            line=dict(color="rgba(255,255,255,0.2)", width=1.5),
+        ),
+        text=reg_agg["regiao"].str.replace("-", "-<br>"),
+        textposition="bottom center",
+        textfont=dict(size=10, color="#e8edf5"),
+        customdata=reg_agg[[
+            "receita_liquida", "margem_op", "ebitda",
+            "lucro_liquido", "n_pdv", "n_criticos", "regiao"
+        ]],
+        hovertemplate=(
+            "<b>%{customdata[6]}</b><br>"
+            "━━━━━━━━━━━━━━━━━━━━<br>"
+            "💰 Receita Líquida: <b>R$ %{customdata[0]:,.0f}</b><br>"
+            "📊 Margem Op.: <b>%{customdata[1]:.1%}</b><br>"
+            "⚡ EBITDA: <b>R$ %{customdata[2]:,.0f}</b><br>"
+            "🏆 Lucro Líq.: <b>R$ %{customdata[3]:,.0f}</b><br>"
+            "🏪 PDVs: <b>%{customdata[4]}</b><br>"
+            "🚨 Críticos: <b>%{customdata[5]}</b>"
+            "<extra></extra>"
+        ),
+        name="",
+    ))
+
+    fig_mapa.update_layout(
+        **DARK_LAYOUT,
+        geo=dict(
+            scope="south america",
+            showland=True,
+            landcolor="rgba(19,27,42,0.9)",
+            showocean=True,
+            oceancolor="rgba(8,12,20,0.9)",
+            showcountries=True,
+            countrycolor="rgba(255,255,255,0.08)",
+            showframe=False,
+            bgcolor="rgba(0,0,0,0)",
+            center=dict(lat=-15, lon=-52),
+            projection_scale=2.5,
+            lataxis_range=[-35, 6],
+            lonaxis_range=[-75, -32],
+            showsubunits=True,
+            subunitcolor="rgba(255,255,255,0.05)",
+        ),
+        showlegend=False,
+    )
+
+    # ── Stacked bar – Composição por Região -----------------------------------
+    reg_comp = (
+        dff.groupby("regiao")
+        .agg(
+            receita_liquida=("receita_liquida", "sum"),
+            cmv=("cmv", "sum"),
+            despesas_variaveis=("despesas_variaveis", "sum"),
+            despesas_fixas=("despesas_fixas", "sum"),
+            lucro_liquido=("lucro_liquido", "sum"),
+        )
+        .reset_index()
+        .sort_values("receita_liquida", ascending=True)
+    )
+
+    fig_reg = go.Figure()
+    bar_defs = [
+        ("CMV",              "cmv",                "#ff4d6d"),
+        ("Desp. Variáveis",  "despesas_variaveis", "#f4a026"),
+        ("Desp. Fixas",      "despesas_fixas",     "#9b5de5"),
+        ("Lucro Líquido",    "lucro_liquido",       "#00e5a0"),
+    ]
+    for name, col, color in bar_defs:
+        fig_reg.add_trace(go.Bar(
+            y=reg_comp["regiao"],
+            x=reg_comp[col],
+            name=name,
+            orientation="h",
+            marker=dict(color=color, opacity=0.85,
+                        line=dict(color="rgba(255,255,255,0.05)", width=0.5)),
+            hovertemplate=f"<b>%{{y}}</b><br>{name}: R$ %{{x:,.0f}}<extra></extra>",
+        ))
+
+    fig_reg.update_layout(
+        **DARK_LAYOUT,
+        barmode="stack",
+        showlegend=True,
+        legend=dict(orientation="h", y=-0.15, x=0, font=dict(size=10)),
+        yaxis=dict(gridcolor="rgba(255,255,255,0.0)", tickfont=dict(size=11),
+                   zerolinecolor="rgba(255,255,255,0.05)"),
+        xaxis=dict(gridcolor="rgba(255,255,255,0.05)", tickformat=",.0f",
+                   zerolinecolor="rgba(255,255,255,0.05)"),
+        bargap=0.3,
+    )
+
+    # ── Insights Table --------------------------------------------------------
+    criticos_df = (
+        dff[dff["prioridade_risco"].isin(["alta", "media"])]
+        .groupby(["id_pdv", "regiao", "canal", "prioridade_risco",
+                  "driver_principal", "recomendacoes"], as_index=False)
+        .agg(
+            receita_liquida=("receita_liquida", "sum"),
+            lucro_liquido=("lucro_liquido", "sum"),
+            score_alerta=("score_alerta", "mean"),
+        )
+        .sort_values(["prioridade_risco", "score_alerta"], ascending=[True, False])
+        .head(25)
+    )
+
+    criticos_df["Receita Líq."] = criticos_df["receita_liquida"].apply(brl)
+    criticos_df["Lucro Líq."]   = criticos_df["lucro_liquido"].apply(brl)
+    criticos_df["Score"]         = criticos_df["score_alerta"].apply(lambda v: f"{v:.1f}")
+
+    # Truncate recomendacoes for display
+    criticos_df["Recomendações"] = criticos_df["recomendacoes"].apply(
+        lambda r: (r[:120] + "…") if isinstance(r, str) and len(r) > 120 else r
+    )
+
+    table_df = criticos_df.rename(columns={
+        "id_pdv":          "PDV",
+        "regiao":          "Região",
+        "canal":           "Canal",
+        "prioridade_risco":"Prioridade",
+        "driver_principal":"Driver",
+    })[["PDV", "Região", "Canal", "Prioridade", "Driver",
+        "Receita Líq.", "Lucro Líq.", "Score", "Recomendações"]]
+
+    table = dash_table.DataTable(
+        id="insights-table",
+        data=table_df.to_dict("records"),
+        columns=[{"name": c, "id": c} for c in table_df.columns],
+        style_table={"overflowX": "auto"},
+        style_cell={
+            "backgroundColor": "#131b2a",
+            "color":           "#e8edf5",
+            "border":          "1px solid rgba(255,255,255,0.07)",
+            "fontFamily":      "DM Sans, sans-serif",
+            "fontSize":        "12.5px",
+            "padding":         "8px 12px",
+            "textAlign":       "left",
+            "whiteSpace":      "normal",
+            "height":          "auto",
+            "maxWidth":        "320px",
+        },
+        style_header={
+            "backgroundColor": "#080c14",
+            "color":           "#7b8ea8",
+            "fontWeight":      "600",
+            "fontSize":        "11px",
+            "textTransform":   "uppercase",
+            "letterSpacing":   "0.5px",
+            "border":          "1px solid rgba(255,255,255,0.07)",
+        },
+        style_data_conditional=[
+            {
+                "if": {"filter_query": "{Prioridade} = alta", "column_id": "Prioridade"},
+                "color":      "#ff4d6d",
+                "fontWeight": "700",
+                "background": "rgba(255,77,109,0.08)",
+            },
+            {
+                "if": {"filter_query": "{Prioridade} = media", "column_id": "Prioridade"},
+                "color":      "#f4a026",
+                "fontWeight": "700",
+            },
+            {
+                "if": {"filter_query": "{Lucro Líq.} contains '-'"},
+                "color": "#ff4d6d",
+            },
+            {"if": {"row_index": "odd"}, "backgroundColor": "#0e1420"},
+        ],
+        page_size=10,
+        page_action="native",
+        sort_action="native",
+        filter_action="native",
+        tooltip_data=[
+            {col: {"value": str(row[col]), "type": "markdown"}
+             for col in ["Recomendações", "Driver"]}
+            for row in table_df.to_dict("records")
+        ],
+        tooltip_duration=None,
+    )
+
+    badge_n = str(criticos_df[criticos_df["prioridade_risco"] == "alta"].shape[0])
+
+    return (*kpi_results, dre_children,
+            fig_donut, fig_scatter, fig_line, fig_bar,
+            fig_mapa, fig_reg, table, badge_n)
+
+
+# ─── Run ──────────────────────────────────────────────────────────────────────
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, port=8050)
