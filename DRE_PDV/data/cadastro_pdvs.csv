@@ -1,0 +1,71 @@
+id_pdv,cidade,regiao,canal,metragem_m2,data_abertura
+PDV001,Brasilia,Centro-Oeste,Shopping,111,2019-06-20
+PDV002,Sao Paulo,Sudeste,Quiosque,28,2022-10-12
+PDV003,Brasilia,Centro-Oeste,Rua,69,2021-09-17
+PDV004,Manaus,Norte,Franquia,148,2021-01-04
+PDV005,Porto Alegre,Sul,Rua,91,2023-10-25
+PDV006,Goiania,Centro-Oeste,Franquia,115,2019-05-07
+PDV007,Curitiba,Sul,Quiosque,27,2022-09-04
+PDV008,Rio de Janeiro,Sudeste,Shopping,103,2023-03-22
+PDV009,Sao Paulo,Sudeste,Franquia,173,2020-12-26
+PDV010,Belo Horizonte,Sudeste,Shopping,108,2024-03-30
+PDV011,Rio de Janeiro,Sudeste,Rua,69,2020-10-15
+PDV012,Recife,Nordeste,Shopping,106,2020-03-25
+PDV013,Goiania,Centro-Oeste,Franquia,122,2023-11-14
+PDV014,Fortaleza,Nordeste,Rua,97,2020-07-24
+PDV015,Sao Paulo,Sudeste,Franquia,135,2021-07-22
+PDV016,Brasilia,Centro-Oeste,Shopping,80,2022-10-28
+PDV017,Sao Paulo,Sudeste,Rua,69,2022-07-19
+PDV018,Salvador,Nordeste,Franquia,124,2021-07-21
+PDV019,Salvador,Nordeste,Shopping,112,2022-04-08
+PDV020,Porto Alegre,Sul,Rua,81,2019-03-03
+PDV021,Goiania,Centro-Oeste,Rua,68,2023-08-22
+PDV022,Belo Horizonte,Sudeste,Franquia,109,2020-07-11
+PDV023,Brasilia,Centro-Oeste,Franquia,112,2021-04-07
+PDV024,Rio de Janeiro,Sudeste,Rua,78,2023-05-31
+PDV025,Fortaleza,Nordeste,Shopping,84,2023-11-19
+PDV026,Sao Paulo,Sudeste,Franquia,136,2021-09-19
+PDV027,Curitiba,Sul,Rua,83,2022-04-17
+PDV028,Sao Paulo,Sudeste,Rua,67,2020-12-17
+PDV029,Manaus,Norte,Franquia,110,2023-02-22
+PDV030,Brasilia,Centro-Oeste,Franquia,96,2024-04-02
+PDV031,Belo Horizonte,Sudeste,Rua,78,2019-09-10
+PDV032,Rio de Janeiro,Sudeste,Rua,89,2021-06-21
+PDV033,Rio de Janeiro,Sudeste,Franquia,121,2021-09-02
+PDV034,Porto Alegre,Sul,Franquia,160,2022-11-25
+PDV035,Recife,Nordeste,Rua,88,2023-04-08
+PDV036,Florianopolis,Sul,Rua,91,2019-03-24
+PDV037,Sao Paulo,Sudeste,Shopping,80,2020-08-16
+PDV038,Salvador,Nordeste,Rua,96,2024-01-06
+PDV039,Sao Paulo,Sudeste,Quiosque,21,2021-07-13
+PDV040,Sao Paulo,Sudeste,Shopping,159,2023-03-30
+PDV041,Manaus,Norte,Shopping,48,2023-05-19
+PDV042,Curitiba,Sul,Shopping,81,2020-06-12
+PDV043,Sao Paulo,Sudeste,Franquia,123,2021-12-10
+PDV044,Salvador,Nordeste,Rua,76,2019-10-05
+PDV045,Belo Horizonte,Sudeste,Franquia,164,2024-02-02
+PDV046,Sao Paulo,Sudeste,Quiosque,20,2023-03-02
+PDV047,Sao Paulo,Sudeste,Shopping,141,2020-09-05
+PDV048,Brasilia,Centro-Oeste,Rua,101,2023-07-01
+PDV049,Belo Horizonte,Sudeste,Shopping,94,2024-05-16
+PDV050,Rio de Janeiro,Sudeste,Rua,62,2024-01-28
+PDV051,Belem,Norte,Quiosque,37,2023-08-02
+PDV052,Manaus,Norte,Shopping,123,2023-10-30
+PDV053,Brasilia,Centro-Oeste,Franquia,147,2023-10-21
+PDV054,Brasilia,Centro-Oeste,Rua,62,2019-07-07
+PDV055,Rio de Janeiro,Sudeste,Rua,116,2023-11-01
+PDV056,Rio de Janeiro,Sudeste,Shopping,70,2019-10-31
+PDV057,Belo Horizonte,Sudeste,Franquia,110,2021-09-15
+PDV058,Sao Paulo,Sudeste,Rua,110,2021-09-18
+PDV059,Sao Paulo,Sudeste,Franquia,68,2020-08-10
+PDV060,Fortaleza,Nordeste,Shopping,75,2021-09-29
+PDV061,Brasilia,Centro-Oeste,Franquia,86,2023-06-24
+PDV062,Sao Paulo,Sudeste,Quiosque,25,2019-09-17
+PDV063,Belo Horizonte,Sudeste,Shopping,106,2020-09-13
+PDV064,Belo Horizonte,Sudeste,Quiosque,26,2024-03-07
+PDV065,Salvador,Nordeste,Franquia,92,2022-12-03
+PDV066,Porto Alegre,Sul,Quiosque,39,2019-10-05
+PDV067,Manaus,Norte,Franquia,83,2022-06-09
+PDV068,Sao Paulo,Sudeste,Rua,71,2023-04-03
+PDV069,Brasilia,Centro-Oeste,Rua,82,2023-02-23
+PDV070,Goiania,Centro-Oeste,Shopping,83,2022-04-14

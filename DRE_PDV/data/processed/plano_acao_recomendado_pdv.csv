@@ -1,0 +1,168 @@
+id_pdv,driver_principal,prioridade_risco,recomendacao_ordem,categoria_acao,recomendacao,prazo_dias
+PDV001,devolucoes_altas,alta,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV001,devolucoes_altas,alta,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV001,devolucoes_altas,alta,3,Qualidade e atendimento,Treinar equipe para orientar melhor o cliente e reduzir devolucoes por insatisfacao.,30
+PDV002,ticket_baixo,media,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV002,ticket_baixo,media,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV003,devolucoes_altas,alta,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV003,devolucoes_altas,alta,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV003,devolucoes_altas,alta,3,Qualidade e atendimento,Treinar equipe para orientar melhor o cliente e reduzir devolucoes por insatisfacao.,30
+PDV004,devolucoes_altas,alta,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV004,devolucoes_altas,alta,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV004,devolucoes_altas,alta,3,Qualidade e atendimento,Treinar equipe para orientar melhor o cliente e reduzir devolucoes por insatisfacao.,30
+PDV005,devolucoes_altas,baixa,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV006,ticket_baixo,alta,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV006,ticket_baixo,alta,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV006,ticket_baixo,alta,3,Reforcar treinamento de equipe,Treinar equipe comercial para elevar conversao e venda consultiva no PDV.,30
+PDV007,ticket_baixo,alta,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV007,ticket_baixo,alta,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV007,ticket_baixo,alta,3,Reforcar treinamento de equipe,Treinar equipe comercial para elevar conversao e venda consultiva no PDV.,30
+PDV008,ticket_baixo,alta,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV008,ticket_baixo,alta,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV008,ticket_baixo,alta,3,Reforcar treinamento de equipe,Treinar equipe comercial para elevar conversao e venda consultiva no PDV.,30
+PDV009,fixo_alto,alta,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV009,fixo_alto,alta,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV009,fixo_alto,alta,3,Eficiencia operacional,Implementar plano de eficiencia em energia e tecnologia para cortar desperdicios recorrentes.,60
+PDV010,ticket_baixo,alta,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV010,ticket_baixo,alta,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV010,ticket_baixo,alta,3,Reforcar treinamento de equipe,Treinar equipe comercial para elevar conversao e venda consultiva no PDV.,30
+PDV011,devolucoes_altas,alta,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV011,devolucoes_altas,alta,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV011,devolucoes_altas,alta,3,Qualidade e atendimento,Treinar equipe para orientar melhor o cliente e reduzir devolucoes por insatisfacao.,30
+PDV012,devolucoes_altas,alta,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV012,devolucoes_altas,alta,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV012,devolucoes_altas,alta,3,Qualidade e atendimento,Treinar equipe para orientar melhor o cliente e reduzir devolucoes por insatisfacao.,30
+PDV013,fixo_alto,media,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV013,fixo_alto,media,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV014,ticket_baixo,alta,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV014,ticket_baixo,alta,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV014,ticket_baixo,alta,3,Reforcar treinamento de equipe,Treinar equipe comercial para elevar conversao e venda consultiva no PDV.,30
+PDV015,fixo_alto,alta,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV015,fixo_alto,alta,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV015,fixo_alto,alta,3,Eficiencia operacional,Implementar plano de eficiencia em energia e tecnologia para cortar desperdicios recorrentes.,60
+PDV016,devolucoes_altas,alta,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV016,devolucoes_altas,alta,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV016,devolucoes_altas,alta,3,Qualidade e atendimento,Treinar equipe para orientar melhor o cliente e reduzir devolucoes por insatisfacao.,30
+PDV017,fixo_alto,baixa,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV018,devolucoes_altas,alta,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV018,devolucoes_altas,alta,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV018,devolucoes_altas,alta,3,Qualidade e atendimento,Treinar equipe para orientar melhor o cliente e reduzir devolucoes por insatisfacao.,30
+PDV019,fixo_alto,alta,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV019,fixo_alto,alta,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV019,fixo_alto,alta,3,Eficiencia operacional,Implementar plano de eficiencia em energia e tecnologia para cortar desperdicios recorrentes.,60
+PDV020,ticket_baixo,alta,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV020,ticket_baixo,alta,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV020,ticket_baixo,alta,3,Reforcar treinamento de equipe,Treinar equipe comercial para elevar conversao e venda consultiva no PDV.,30
+PDV021,ticket_baixo,baixa,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV022,devolucoes_altas,baixa,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV023,fixo_alto,alta,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV023,fixo_alto,alta,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV023,fixo_alto,alta,3,Eficiencia operacional,Implementar plano de eficiencia em energia e tecnologia para cortar desperdicios recorrentes.,60
+PDV024,fixo_alto,media,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV024,fixo_alto,media,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV025,ticket_baixo,baixa,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV026,fixo_alto,alta,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV026,fixo_alto,alta,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV026,fixo_alto,alta,3,Eficiencia operacional,Implementar plano de eficiencia em energia e tecnologia para cortar desperdicios recorrentes.,60
+PDV027,devolucoes_altas,alta,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV027,devolucoes_altas,alta,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV027,devolucoes_altas,alta,3,Qualidade e atendimento,Treinar equipe para orientar melhor o cliente e reduzir devolucoes por insatisfacao.,30
+PDV028,devolucoes_altas,alta,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV028,devolucoes_altas,alta,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV028,devolucoes_altas,alta,3,Qualidade e atendimento,Treinar equipe para orientar melhor o cliente e reduzir devolucoes por insatisfacao.,30
+PDV029,fixo_alto,alta,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV029,fixo_alto,alta,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV029,fixo_alto,alta,3,Eficiencia operacional,Implementar plano de eficiencia em energia e tecnologia para cortar desperdicios recorrentes.,60
+PDV030,ticket_baixo,alta,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV030,ticket_baixo,alta,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV030,ticket_baixo,alta,3,Reforcar treinamento de equipe,Treinar equipe comercial para elevar conversao e venda consultiva no PDV.,30
+PDV031,ticket_baixo,media,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV031,ticket_baixo,media,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV032,fixo_alto,baixa,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV033,fixo_alto,alta,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV033,fixo_alto,alta,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV033,fixo_alto,alta,3,Eficiencia operacional,Implementar plano de eficiencia em energia e tecnologia para cortar desperdicios recorrentes.,60
+PDV034,fixo_alto,alta,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV034,fixo_alto,alta,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV034,fixo_alto,alta,3,Eficiencia operacional,Implementar plano de eficiencia em energia e tecnologia para cortar desperdicios recorrentes.,60
+PDV035,fixo_alto,baixa,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV036,fixo_alto,media,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV036,fixo_alto,media,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV037,ticket_baixo,media,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV037,ticket_baixo,media,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV038,fixo_alto,baixa,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV039,ticket_baixo,alta,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV039,ticket_baixo,alta,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV039,ticket_baixo,alta,3,Reforcar treinamento de equipe,Treinar equipe comercial para elevar conversao e venda consultiva no PDV.,30
+PDV040,fixo_alto,media,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV040,fixo_alto,media,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV041,ticket_baixo,media,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV041,ticket_baixo,media,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV042,devolucoes_altas,baixa,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV043,devolucoes_altas,alta,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV043,devolucoes_altas,alta,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV043,devolucoes_altas,alta,3,Qualidade e atendimento,Treinar equipe para orientar melhor o cliente e reduzir devolucoes por insatisfacao.,30
+PDV044,ticket_baixo,alta,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV044,ticket_baixo,alta,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV044,ticket_baixo,alta,3,Reforcar treinamento de equipe,Treinar equipe comercial para elevar conversao e venda consultiva no PDV.,30
+PDV045,fixo_alto,baixa,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV046,ticket_baixo,alta,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV046,ticket_baixo,alta,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV046,ticket_baixo,alta,3,Reforcar treinamento de equipe,Treinar equipe comercial para elevar conversao e venda consultiva no PDV.,30
+PDV047,devolucoes_altas,alta,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV047,devolucoes_altas,alta,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV047,devolucoes_altas,alta,3,Qualidade e atendimento,Treinar equipe para orientar melhor o cliente e reduzir devolucoes por insatisfacao.,30
+PDV048,devolucoes_altas,alta,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV048,devolucoes_altas,alta,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV048,devolucoes_altas,alta,3,Qualidade e atendimento,Treinar equipe para orientar melhor o cliente e reduzir devolucoes por insatisfacao.,30
+PDV049,fixo_alto,media,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV049,fixo_alto,media,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV050,ticket_baixo,baixa,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV051,ticket_baixo,media,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV051,ticket_baixo,media,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV052,fixo_alto,alta,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV052,fixo_alto,alta,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV052,fixo_alto,alta,3,Eficiencia operacional,Implementar plano de eficiencia em energia e tecnologia para cortar desperdicios recorrentes.,60
+PDV053,devolucoes_altas,alta,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV053,devolucoes_altas,alta,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV053,devolucoes_altas,alta,3,Qualidade e atendimento,Treinar equipe para orientar melhor o cliente e reduzir devolucoes por insatisfacao.,30
+PDV054,devolucoes_altas,alta,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV054,devolucoes_altas,alta,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV054,devolucoes_altas,alta,3,Qualidade e atendimento,Treinar equipe para orientar melhor o cliente e reduzir devolucoes por insatisfacao.,30
+PDV055,fixo_alto,alta,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV055,fixo_alto,alta,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV055,fixo_alto,alta,3,Eficiencia operacional,Implementar plano de eficiencia em energia e tecnologia para cortar desperdicios recorrentes.,60
+PDV056,devolucoes_altas,media,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV056,devolucoes_altas,media,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV057,fixo_alto,media,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV057,fixo_alto,media,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV058,fixo_alto,media,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV058,fixo_alto,media,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV059,fixo_alto,media,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV059,fixo_alto,media,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV060,ticket_baixo,media,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV060,ticket_baixo,media,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV061,devolucoes_altas,alta,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV061,devolucoes_altas,alta,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV061,devolucoes_altas,alta,3,Qualidade e atendimento,Treinar equipe para orientar melhor o cliente e reduzir devolucoes por insatisfacao.,30
+PDV062,ticket_baixo,baixa,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV063,devolucoes_altas,media,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV063,devolucoes_altas,media,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV064,ticket_baixo,baixa,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV065,devolucoes_altas,alta,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV065,devolucoes_altas,alta,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV065,devolucoes_altas,alta,3,Qualidade e atendimento,Treinar equipe para orientar melhor o cliente e reduzir devolucoes por insatisfacao.,30
+PDV066,ticket_baixo,alta,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV066,ticket_baixo,alta,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV066,ticket_baixo,alta,3,Reforcar treinamento de equipe,Treinar equipe comercial para elevar conversao e venda consultiva no PDV.,30
+PDV067,ticket_baixo,alta,1,Revisar mix de produtos,Ajustar mix e precificacao local para aumentar ticket medio e margem de contribuicao.,60
+PDV067,ticket_baixo,alta,2,Acao de marketing local,Ativar campanha local de upsell e cross-sell com foco em categorias de maior margem.,45
+PDV067,ticket_baixo,alta,3,Reforcar treinamento de equipe,Treinar equipe comercial para elevar conversao e venda consultiva no PDV.,30
+PDV068,devolucoes_altas,alta,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV068,devolucoes_altas,alta,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
+PDV068,devolucoes_altas,alta,3,Qualidade e atendimento,Treinar equipe para orientar melhor o cliente e reduzir devolucoes por insatisfacao.,30
+PDV069,fixo_alto,alta,1,Reduzir custo fixo,Renegociar aluguel e contratos de servicos para reduzir em ao menos 8% os gastos fixos em ate 90 dias.,90
+PDV069,fixo_alto,alta,2,Otimizacao de escala,Readequar escala da equipe por faixas de demanda para elevar produtividade sem perda de atendimento.,60
+PDV069,fixo_alto,alta,3,Eficiencia operacional,Implementar plano de eficiencia em energia e tecnologia para cortar desperdicios recorrentes.,60
+PDV070,devolucoes_altas,media,1,Reduzir devolucoes,Auditar causas de devolucao por SKU e fornecedor e corrigir os principais ofensores.,45
+PDV070,devolucoes_altas,media,2,Padronizar processo de venda,Aplicar checklist de venda/troca para reduzir erro operacional e divergencia de expectativa.,30
