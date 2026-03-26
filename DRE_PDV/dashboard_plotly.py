@@ -215,7 +215,7 @@ app.layout = html.Div(
                         placeholder="Todas as regiões",
                         clearable=True,
                         className="dark-dropdown",
-                        # Removido style inline para evitar conflito com os cantos brancos no CSS
+                        style={"background": "#131b2a"},
                     ),
                 ], className="filter-item"),
                 html.Div([
@@ -227,7 +227,7 @@ app.layout = html.Div(
                         placeholder="Todos os canais",
                         clearable=True,
                         className="dark-dropdown",
-                        # Removido style inline para evitar conflito com os cantos brancos no CSS
+                        style={"background": "#131b2a"},
                     ),
                 ], className="filter-item"),
                 html.Div([
@@ -239,7 +239,7 @@ app.layout = html.Div(
                         placeholder="Todos os PDVs",
                         clearable=True,
                         className="dark-dropdown",
-                        # Removido style inline para evitar conflito com os cantos brancos no CSS
+                        style={"background": "#131b2a"},
                     ),
                 ], className="filter-item"),
             ],
