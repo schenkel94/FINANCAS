@@ -759,11 +759,11 @@ def update_all(start, end, regioes, canais, pdvs):
         id="insights-table",
         data=table_df.to_dict("records"),
         columns=[{"name": c, "id": c} for c in table_df.columns],
-        style_table={"overflowX": "auto"},
+        style_table={"overflowX": "auto", "background": "#080c14"},
         style_cell={
             "backgroundColor": "#131b2a",
             "color":           "#e8edf5",
-            "border":          "1px solid rgba(255,255,255,0.07)",
+            "border":          "1px solid rgba(255,255,255,0.06)",
             "fontFamily":      "DM Sans, sans-serif",
             "fontSize":        "12.5px",
             "padding":         "8px 12px",
@@ -779,7 +779,14 @@ def update_all(start, end, regioes, canais, pdvs):
             "fontSize":        "11px",
             "textTransform":   "uppercase",
             "letterSpacing":   "0.5px",
-            "border":          "1px solid rgba(255,255,255,0.07)",
+            "border":          "1px solid rgba(255,255,255,0.06)",
+        },
+        style_filter={
+            "backgroundColor": "#080c14",
+            "color":           "#7b8ea8",
+            "border":          "1px solid rgba(0,212,255,0.15)",
+            "fontFamily":      "DM Sans, sans-serif",
+            "fontSize":        "12px",
         },
         style_data_conditional=[
             {
