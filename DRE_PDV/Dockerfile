@@ -22,7 +22,4 @@ COPY --chown=user . .
 EXPOSE 7860
 
 # Gunicorn: app = server no dashboard_plotly.py
-CMD ["gunicorn", "dashboard_plotly:server", \
-     "--bind", "0.0.0.0:7860", \
-     "--workers", "1", \
-     "--timeout", "120"]
+CMD ["gunicorn", "--bind", "0.0.0.0:7860", "--workers", "1", "--timeout", "200", "app:server"]
