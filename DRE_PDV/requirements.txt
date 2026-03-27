@@ -1,7 +1,7 @@
-pandas
-numpy
-plotly
-dash
-dash-bootstrap-components
-gunicorn
+pandas>=2.0,<3.0
+numpy>=1.26,<2.0
+plotly>=5.22,<6.0
+dash>=2.17,<3.0
+dash-bootstrap-components>=1.6,<2.0
+gunicorn>=21.2,<23.0
 pathlib
